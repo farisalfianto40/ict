@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Display LCD I2C 16x2 - mBlock</title>
+    <title>Pembelajaran Kodular & ESP32 - Kontrol LED via Bluetooth</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,69 +14,73 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
 
-    <!-- Google Fonts for LCD Dot Matrix Style -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
 
     <style>
       body {
+        font-family: "Plus Jakarta Sans", sans-serif;
         user-select: none;
         -webkit-user-select: none;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
       }
+      pre,
+      code {
+        font-family: "Fira Code", monospace;
+      }
       ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: 8px;
+        height: 8px;
       }
       ::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 9999px;
       }
-
-      /* Simulation LCD Matrix Font & Background */
-      .lcd-screen {
-        background-color: #8ac926;
-        color: #122b00;
-        font-family: "VT323", monospace;
-        text-shadow: 0 0 2px rgba(18, 43, 0, 0.3);
-        letter-spacing: 2px;
-      }
-      .lcd-off {
-        background-color: #3f5220 !important;
-        color: #33421a !important;
-        text-shadow: none !important;
-      }
-
-      /* Custom Range Slider */
-      input[type="range"]::-webkit-slider-thumb {
-        appearance: none;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #0d9488;
-        cursor: pointer;
-        border: 2px solid #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-
-      /* Zoom hover effect for screenshots */
       .img-preview-container img {
-        transition: transform 0.3s ease;
+        transition: transform 0.2s ease;
       }
       .img-preview-container:hover img {
-        transform: scale(1.02);
+        transform: scale(1.01);
+      }
+
+      /* Theme Arduino IDE Light Mode */
+      .arduino-ide-theme {
+        background-color: #ffffff;
+        color: #000000;
+      }
+      .arduino-keyword1 {
+        color: #00979c;
+        font-weight: 600;
+      }
+      .arduino-keyword2 {
+        color: #d35400;
+        font-weight: 600;
+      }
+      .arduino-function {
+        color: #d35400;
+      }
+      .arduino-string {
+        color: #005c5f;
+      }
+      .arduino-comment {
+        color: #7f8c8d;
+        font-style: italic;
+      }
+      .arduino-number {
+        color: #8e44ad;
       }
     </style>
   </head>
   <body
-    class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased pb-10"
+    class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col pb-12"
   >
-    <!-- HEADER APP -->
+    <!-- HEADER -->
     <header
       class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs"
     >
@@ -87,22 +91,22 @@
           <a
             href="index.html"
             class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-sm transition-colors"
-            title="Kembali"
+            title="Utama"
           >
-            <i class="fa-solid fa-home"></i>
+            <i class="fa-solid fa-house"></i>
           </a>
           <div>
             <div class="flex items-center gap-2">
               <span
-                class="text-[10px] font-extrabold bg-teal-100 text-teal-800 px-2 py-0.5 rounded uppercase tracking-wider"
+                class="text-[10px] font-extrabold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded uppercase tracking-wider"
               >
-                mBlock Block Programming
+                Kodular + ESP32
               </span>
             </div>
             <h1
               class="text-sm sm:text-base font-black text-slate-900 leading-tight mt-0.5"
             >
-              Pengoperasian LCD I2C 16x2 & Monitoring DHT11
+              Aplikasi Kontrol LED via Bluetooth Classic
             </h1>
           </div>
         </div>
@@ -110,653 +114,562 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <!-- HERO BANNER RINGKAS -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+      <!-- HERO BANNER -->
       <section
-        class="bg-gradient-to-r from-teal-800 to-teal-700 text-white rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden"
+        class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-700 text-white rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden"
       >
         <div
           class="absolute -right-4 -bottom-6 opacity-15 pointer-events-none hidden sm:block select-none"
         >
-          <i class="fa-solid fa-cubes text-[140px] text-teal-100"></i>
+          <i
+            class="fa-solid fa-mobile-screen-button text-[140px] text-indigo-100"
+          ></i>
         </div>
         <div class="relative z-10 space-y-1.5 max-w-3xl">
           <div
-            class="inline-flex items-center gap-2 bg-white/15 border border-white/20 text-teal-50 px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md"
+            class="inline-flex items-center gap-2 bg-white/15 border border-white/20 text-indigo-50 px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md"
           >
-            <i class="fa-solid fa-microchip text-teal-200 text-xs"></i>
-            <span>Praktik Pemrograman Blok mBlock</span>
+            <i class="fa-brands fa-bluetooth-b text-indigo-200 text-xs"></i>
+            <span>Pemrograman IoT Mobile</span>
           </div>
           <h2
             class="text-lg sm:text-xl font-extrabold text-white leading-tight"
           >
-            Visualisasi Data & Antarmuka LCD I2C 16x2
+            Media Pembelajaran Kontrol LED ESP32 via Kodular
           </h2>
           <p
-            class="text-xs sm:text-sm text-teal-50/90 leading-relaxed font-normal"
+            class="text-xs sm:text-sm text-indigo-50/90 leading-relaxed font-normal"
           >
-            Pelajari pengoperasian modul LCD I2C 16x2 dan pemantauan sensor
-            DHT11 menggunakan pemrograman berbasis blok (mBlock).
+            Pelajari pembuatan aplikasi Android menggunakan Kodular untuk
+            mengendalikan LED pada mikrokontroler ESP32 melalui komunikasi
+            Serial Bluetooth Classic.
           </p>
         </div>
       </section>
 
-      <!-- SECTION PANDUAN DOWNLOAD EXTENSION MBLOCK -->
+      <!-- TUTORIAL PENYIAPAN ESP32 DI ARDUINO IDE -->
       <section
-        class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4"
+        class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4"
       >
         <div
           class="flex items-center justify-between border-b border-slate-100 pb-3"
         >
-          <h2
-            class="text-base sm:text-lg font-extrabold text-slate-800 flex items-center gap-2"
+          <h3
+            class="text-base font-extrabold text-slate-800 flex items-center gap-2"
           >
-            <i class="fa-solid fa-puzzle-piece text-teal-600"></i> Panduan Cara
-            Download Extension mBlock
-          </h2>
+            <i class="fa-solid fa-gears text-teal-600"></i> Panduan Memulai /
+            Setup Board ESP32 Pertama Kali (Arduino IDE)
+          </h3>
           <span
-            class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200"
+            class="text-xs font-bold bg-teal-50 text-teal-700 px-2.5 py-1 rounded-lg border border-teal-100"
           >
-            Persiapan Awal
+            Tutorial Dasar
           </span>
         </div>
 
-        <!-- LANGKAH-LANGKAH -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs"
+        >
+          <!-- LANGKAH 1 -->
           <div
-            class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between"
+            class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2"
           >
-            <div>
+            <div class="flex items-center gap-2 font-bold text-slate-800">
               <span
-                class="w-6 h-6 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs mb-2"
+                class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]"
                 >1</span
               >
-              <h4 class="font-bold text-slate-800 mb-1">
-                Buka Extension Center
-              </h4>
-              <p class="text-slate-600">
-                Klik tombol <strong>+ Extension</strong> di bagian bawah area
-                blok mBlock.
-              </p>
+              <span>Download Arduino IDE</span>
             </div>
+            <p class="text-slate-600 leading-relaxed">
+              Unduh dan install software
+              <strong>Arduino IDE</strong> (disarankan versi 2.x) melalui situs
+              resmi
+              <a
+                href="https://www.arduino.cc/en/software"
+                target="_blank"
+                class="text-teal-600 underline"
+                >arduino.cc</a
+              >.
+            </p>
           </div>
+
+          <!-- LANGKAH 2 (REVISI URL JSON ESP32 GITHUB) -->
           <div
-            class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between"
+            class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2"
           >
-            <div>
+            <div class="flex items-center gap-2 font-bold text-slate-800">
               <span
-                class="w-6 h-6 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs mb-2"
+                class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]"
                 >2</span
               >
-              <h4 class="font-bold text-slate-800 mb-1">
-                Pilih Device Extensions
-              </h4>
-              <p class="text-slate-600">
-                Pastikan tab <strong>Device Extensions</strong> terpilih dan
-                target device <strong>Arduino Uno</strong> aktif.
-              </p>
+              <span>Masukkan Link JSON ESP32</span>
+            </div>
+            <p class="text-slate-600 leading-relaxed">
+              Buka menu <strong>File &gt; Preferences</strong>. Pada kolom
+              <em>Additional Boards Manager URLs</em>, paste url berikut:
+            </p>
+            <div
+              class="bg-white p-2 rounded border border-slate-300 font-mono text-[10px] select-all break-all text-slate-700"
+            >
+              https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
             </div>
           </div>
+
+          <!-- LANGKAH 3 -->
           <div
-            class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between"
+            class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2"
           >
-            <div>
+            <div class="flex items-center gap-2 font-bold text-slate-800">
               <span
-                class="w-6 h-6 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs mb-2"
+                class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]"
                 >3</span
               >
-              <h4 class="font-bold text-slate-800 mb-1">Cari Ekstensi</h4>
-              <p class="text-slate-600">
-                Ketik kata kunci
-                <code class="bg-slate-200 px-1 rounded text-teal-800 font-bold"
-                  >i2c lcd</code
-                >
-                atau
-                <code class="bg-slate-200 px-1 rounded text-teal-800 font-bold"
-                  >dht sensor</code
-                >
-                pada kolom pencarian.
-              </p>
+              <span>Install Board ESP32</span>
             </div>
+            <p class="text-slate-600 leading-relaxed">
+              Buka <strong>Tools &gt; Board &gt; Boards Manager</strong>. Cari
+              keyword <code>esp32</code> oleh <em>Espressif Systems</em>, lalu
+              klik <strong>Install</strong>.
+            </p>
           </div>
+
+          <!-- LANGKAH 4 -->
           <div
-            class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between"
+            class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2"
           >
-            <div>
+            <div class="flex items-center gap-2 font-bold text-slate-800">
               <span
-                class="w-6 h-6 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs mb-2"
+                class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]"
                 >4</span
               >
-              <h4 class="font-bold text-slate-800 mb-1">Tambahkan (+ Add)</h4>
-              <p class="text-slate-600">
-                Klik tombol <strong>+ Add</strong> pada kartu ekstensi yang
-                sesuai untuk menambahkan ke workspace.
-              </p>
+              <span>Pilih Board &amp; Port</span>
             </div>
-          </div>
-        </div>
-
-        <!-- VISUAL DUA EKSTENSI YANG DIBUTUHKAN (TAMPILAN GAMBAR DIBERSIHKAN DAN DITINGKATKAN) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
-          <!-- EXTENSION 1: I2C LCD -->
-          <div
-            class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50 flex flex-col justify-between"
-          >
-            <div
-              class="bg-slate-200/80 px-3.5 py-2.5 border-b border-slate-300 flex items-center justify-between"
-            >
-              <span
-                class="font-bold text-xs text-slate-800 flex items-center gap-1.5"
-              >
-                <i class="fa-solid fa-tv text-teal-700"></i> 1. Extension: I2C
-                LCD
-              </span>
-              <span
-                class="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-mono font-bold"
-                >Cari: i2c lcd</span
-              >
-            </div>
-
-            <div class="p-3 space-y-3 flex-1 flex flex-col">
-              <div
-                onclick="
-                  openModal(
-                    'img/ex-lcd.png',
-                    'ex-lcd.png',
-                    'Tampilan Extension I2C LCD',
-                  )
-                "
-                class="img-preview-container relative bg-white p-1.5 rounded-lg border border-slate-200 overflow-hidden cursor-zoom-in group shadow-2xs flex-1 flex items-center justify-center min-h-[220px]"
-              >
-                <img
-                  src="img/ex-lcd.png"
-                  alt="Extension I2C LCD"
-                  class="w-full h-auto max-h-[320px] object-contain rounded"
-                  onerror="
-                    this.onerror = null;
-                    this.src = 'ex-lcd.png';
-                  "
-                />
-                <div
-                  class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                >
-                  <span
-                    class="bg-slate-900/80 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full backdrop-blur-xs flex items-center gap-1.5"
-                  >
-                    <i class="fa-solid fa-magnifying-glass-plus"></i> Klik untuk
-                    Perbesar
-                  </span>
-                </div>
-              </div>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Pilih ekstensi <strong>I2C LCD</strong> (Developers:
-                <em>csanum42</em> atau sejenis) yang menyediakan blok
-                inisialisasi address
-                <code class="bg-slate-200 px-1 rounded font-mono font-bold"
-                  >0x27</code
-                >
-                serta perintah cetak teks ke baris dan kolom LCD.
-              </p>
-            </div>
-          </div>
-
-          <!-- EXTENSION 2: DHT SENSOR -->
-          <div
-            class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50 flex flex-col justify-between"
-          >
-            <div
-              class="bg-slate-200/80 px-3.5 py-2.5 border-b border-slate-300 flex items-center justify-between"
-            >
-              <span
-                class="font-bold text-xs text-slate-800 flex items-center gap-1.5"
-              >
-                <i
-                  class="fa-solid fa-temperature-three-quarters text-teal-700"
-                ></i>
-                2. Extension: DHT Sensor
-              </span>
-              <span
-                class="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-mono font-bold"
-                >Cari: dht sensor</span
-              >
-            </div>
-
-            <div class="p-3 space-y-3 flex-1 flex flex-col">
-              <div
-                onclick="
-                  openModal(
-                    'img/ex-dht.png',
-                    'ex-dht.png',
-                    'Tampilan Extension DHT Sensor',
-                  )
-                "
-                class="img-preview-container relative bg-white p-1.5 rounded-lg border border-slate-200 overflow-hidden cursor-zoom-in group shadow-2xs flex-1 flex items-center justify-center min-h-[220px]"
-              >
-                <img
-                  src="img/ex-dht.png"
-                  alt="Extension DHT Sensor"
-                  class="w-full h-auto max-h-[320px] object-contain rounded"
-                  onerror="
-                    this.onerror = null;
-                    this.src = 'ex-dht.png';
-                  "
-                />
-                <div
-                  class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                >
-                  <span
-                    class="bg-slate-900/80 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full backdrop-blur-xs flex items-center gap-1.5"
-                  >
-                    <i class="fa-solid fa-magnifying-glass-plus"></i> Klik untuk
-                    Perbesar
-                  </span>
-                </div>
-              </div>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Pilih ekstensi <strong>dht sensor</strong> (Developers:
-                <em>saricicek</em>) untuk membaca parameter suhu (°C) dan
-                kelembaban (%) dari sensor DHT11 yang terhubung ke pin digital
-                Arduino.
-              </p>
-            </div>
+            <p class="text-slate-600 leading-relaxed">
+              Pilih board pada menu
+              <strong
+                >Tools &gt; Board &gt; ESP32 Arduino &gt; DOIT ESP32 DEVKIT
+                V1</strong
+              >. Hubungkan kabel USB dan atur <strong>Port COM</strong> sesuai
+              device manager.
+            </p>
           </div>
         </div>
       </section>
 
-      <!-- SKEMA RANGKAIAN & HARDWARE VISUAL -->
-      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- GAMBAR RANGKAIAN (2 Kolom) -->
+      <!-- URUTAN 1: RANGKAIAN ALAT -->
+      <section
+        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4"
+      >
         <div
-          class="md:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-3"
+          class="flex items-center justify-between border-b border-slate-100 pb-3"
         >
-          <div
-            class="w-full flex items-center justify-between border-b border-slate-100 pb-2.5"
+          <h3
+            class="text-base sm:text-lg font-extrabold text-slate-800 flex items-center gap-2"
           >
-            <h2
-              class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2"
-            >
-              <i class="fa-solid fa-diagram-project text-teal-600"></i> Skema
-              Rangkaian
-            </h2>
+            <i class="fa-solid fa-microchip text-indigo-600"></i> 1. Skema
+            Rangkaian Hardware (Breadboard)
+          </h3>
+          <span
+            class="text-xs font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg border border-indigo-100"
+          >
+            Pin GPIO2
+          </span>
+        </div>
+
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Koneksi Pin Rangkaian:
+          <strong>Anoda LED (Kaki Panjang)</strong> dihubungkan ke
+          <strong>GPIO2 (G2)</strong> ESP32, sedangkan
+          <strong>Katoda LED (Kaki Pendek)</strong> dihubungkan ke
+          <strong>GND</strong>.
+        </p>
+
+        <div
+          onclick="
+            openModal(
+              'gambar-1.png',
+              'gambar-1.png',
+              'Skema Rangkaian Hardware ESP32 & LED',
+            )
+          "
+          class="img-preview-container relative w-full bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-200 flex items-center justify-center min-h-[380px] cursor-zoom-in group"
+        >
+          <img
+            src="gambar-1.png"
+            alt="Skema Hardware ESP32 LED"
+            class="max-h-[480px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs"
+            onerror="
+              this.onerror = null;
+              this.src = 'gambar-1_2.png';
+            "
+          />
+          <div
+            class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+          >
             <span
-              id="schemaTitleTag"
-              class="text-xs font-bold bg-teal-100 text-teal-800 px-2.5 py-1 rounded-lg"
+              class="bg-slate-900/80 text-white text-xs font-semibold px-4 py-2 rounded-full backdrop-blur-xs flex items-center gap-2"
             >
-              Skema Misi 1
+              <i class="fa-solid fa-magnifying-glass-plus"></i> Klik untuk
+              Perbesar Mode Layar Penuh
             </span>
           </div>
+        </div>
+      </section>
 
-          <!-- KONTEN GAMBAR SKEMA -->
-          <div class="space-y-2">
-            <p id="schemaDesc" class="text-xs text-slate-600 leading-relaxed">
-              <!-- Deskripsi skema diisi oleh JavaScript -->
-            </p>
+      <!-- URUTAN 2: TAMPILAN KODULAR -->
+      <section
+        class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6"
+      >
+        <div
+          class="border-b border-slate-100 pb-3 flex items-center justify-between"
+        >
+          <h3
+            class="text-base sm:text-lg font-extrabold text-slate-800 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-mobile-screen text-indigo-600"></i> 2.
+            Tampilan Antarmuka &amp; Blok Logika Kodular
+          </h3>
+          <span
+            class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1 rounded-lg"
+          >
+            UI &amp; Block Logic
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- KODULAR DESIGNER -->
+          <div class="space-y-3">
+            <h4
+              class="text-sm font-bold text-slate-700 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-border-all text-indigo-500"></i> Desain
+              Layout Aplikasi (Kodular Designer)
+            </h4>
             <div
-              onclick="openCurrentSchemaModal()"
-              class="img-preview-container relative w-full bg-slate-50 p-2 sm:p-3 rounded-xl border border-slate-200 flex items-center justify-center min-h-[240px] cursor-zoom-in group"
+              onclick="
+                openModal(
+                  'gambar-2.png',
+                  'gambar-2.png',
+                  'Tampilan Kodular Designer',
+                )
+              "
+              class="img-preview-container relative w-full bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-center min-h-[320px] cursor-zoom-in group"
             >
               <img
-                id="schemaImage"
-                src="img/rangkaian1.png"
-                alt="Skema Rangkaian LCD I2C"
-                class="max-h-[300px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-2xs"
+                src="gambar-2.png"
+                alt="Kodular Designer Interface"
+                class="max-h-[420px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs"
                 onerror="
                   this.onerror = null;
-                  this.src = 'gambar1.png';
+                  this.src = 'gambar-2_2.png';
                 "
               />
               <div
                 class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
               >
                 <span
-                  class="bg-slate-900/80 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full backdrop-blur-xs flex items-center gap-1.5"
+                  class="bg-slate-900/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-xs flex items-center gap-1.5"
                 >
-                  <i class="fa-solid fa-magnifying-glass-plus"></i> Perbesar
-                  Skema
+                  <i class="fa-solid fa-magnifying-glass-plus"></i> Klik untuk
+                  Perbesar
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KODULAR BLOCKS -->
+          <div class="space-y-3">
+            <h4
+              class="text-sm font-bold text-slate-700 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-puzzle-piece text-indigo-500"></i> Logika
+              Program (Kodular Blocks)
+            </h4>
+            <div
+              onclick="
+                openModal(
+                  'gambar-3.png',
+                  'gambar-3.png',
+                  'Susunan Blok Logika Kodular',
+                )
+              "
+              class="img-preview-container relative w-full bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-center min-h-[320px] cursor-zoom-in group"
+            >
+              <img
+                src="gambar-3.png"
+                alt="Kodular Blocks Logic"
+                class="max-h-[420px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'gambar-3_2.png';
+                "
+              />
+              <div
+                class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              >
+                <span
+                  class="bg-slate-900/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-xs flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-magnifying-glass-plus"></i> Klik untuk
+                  Perbesar
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- SIMULATOR HARDWARE LCD 16x2 (1 Kolom) -->
-        <div
-          class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between items-center text-center overflow-hidden"
+        <p
+          class="text-xs text-amber-900 bg-amber-50 p-3 rounded-xl border border-amber-200 leading-relaxed"
         >
-          <div
-            class="w-full border-b border-slate-100 pb-2.5 flex items-center justify-between mb-2"
-          >
-            <h2
-              class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2"
-            >
-              <i class="fa-solid fa-tv text-teal-600"></i> Simulator LCD 16x2
-            </h2>
-            <span
-              id="lcdAddressBadge"
-              class="text-[10px] font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded border border-teal-200"
-              >I2C: 0x27</span
-            >
-          </div>
-
-          <!-- CONTAINER FISIK LCD MODULE 1602 -->
-          <div
-            class="relative w-full bg-blue-900 border-4 border-slate-800 rounded-xl p-3 shadow-lg my-auto space-y-2"
-          >
-            <!-- FRAME SCREEN LCD -->
-            <div
-              class="bg-slate-900 p-2.5 rounded-lg border-2 border-slate-700 shadow-inner"
-            >
-              <!-- SKRIN MATRIKS LCD (GREEN BACKLIGHT) -->
-              <div
-                id="lcdDisplayBox"
-                class="lcd-screen w-full rounded p-2 text-left font-mono text-lg leading-tight select-none shadow-inner transition-colors duration-300 min-h-[68px] flex flex-col justify-center"
-              >
-                <div id="lcdLine1" class="whitespace-pre"></div>
-                <div id="lcdLine2" class="whitespace-pre"></div>
-              </div>
-            </div>
-
-            <!-- PINOUT LABEL LCD I2C -->
-            <div
-              class="flex justify-between items-center text-[9px] font-mono text-slate-300 px-1 pt-0.5 border-t border-blue-800"
-            >
-              <span>GND</span>
-              <span>VCC</span>
-              <span>SDA (A4)</span>
-              <span>SCL (A5)</span>
-            </div>
-          </div>
-
-          <!-- INPUT CONTROLS / INTERAKTIF KONTROL SIMULASI -->
-          <div class="w-full space-y-2 mt-3">
-            <!-- CONTROLS MISI 2: SLIDER DHT11 -->
-            <div
-              id="dhtSliderBox"
-              class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-left hidden"
-            >
-              <div class="space-y-1">
-                <div
-                  class="flex justify-between text-[10px] font-bold text-slate-700"
-                >
-                  <span>Suhu (DHT11):</span>
-                  <span id="tempValText" class="text-teal-700 font-mono"
-                    >28.5 °C</span
-                  >
-                </div>
-                <input
-                  type="range"
-                  id="tempSlider"
-                  min="10"
-                  max="50"
-                  step="0.5"
-                  value="28.5"
-                  oninput="updateSimData()"
-                  class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
-                />
-              </div>
-
-              <div class="space-y-1">
-                <div
-                  class="flex justify-between text-[10px] font-bold text-slate-700"
-                >
-                  <span>Kelembaban (DHT11):</span>
-                  <span id="humValText" class="text-teal-700 font-mono"
-                    >65 %</span
-                  >
-                </div>
-                <input
-                  type="range"
-                  id="humSlider"
-                  min="20"
-                  max="95"
-                  step="1"
-                  value="65"
-                  oninput="updateSimData()"
-                  class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+          <strong>Catatan Sinkronisasi Data:</strong> Agar responsif dengan
+          fungsi <code>readStringUntil('\n')</code> pada ESP32, teks pengiriman
+          pada blok Kodular dikirim menggunakan string
+          <code>"led1on\n"</code> dan <code>"led1off\n"</code>.
+        </p>
       </section>
 
-      <!-- SELEKTOR MISI PRAKTIKUM LCD -->
-      <section class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h3
-            class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2"
-          >
-            <i class="fa-solid fa-gamepad text-teal-600"></i> Pilih Misi
-            Praktikum
-          </h3>
-          <span
-            class="text-xs font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-100"
-          >
-            2 Misi Utama
-          </span>
-        </div>
-
-        <!-- TOMBOL STRIP MISI 1 & MISI 2 -->
-        <div class="flex flex-wrap gap-2.5">
-          <button
-            onclick="switchMission('1')"
-            id="sub-btn-1"
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-teal-700 text-white shadow-xs transition cursor-pointer flex items-center gap-2"
-          >
-            <i class="fa-solid fa-id-card"></i> Misi 1: Tampil Nama & Kelas
-          </button>
-          <button
-            onclick="switchMission('2')"
-            id="sub-btn-2"
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition cursor-pointer flex items-center gap-2"
-          >
-            <i class="fa-solid fa-temperature-three-quarters"></i> Misi 2:
-            Monitoring DHT11
-          </button>
-        </div>
-
-        <!-- PANEL DESKRIPSI MISI -->
+      <!-- URUTAN 3: PROGRAM ARDUINO 1 KOLOM SENDIRI -->
+      <section class="space-y-6">
+        <!-- BARIS KODE SKETCH ARDUINO -->
         <div
-          id="mission-description-box"
-          class="bg-teal-50/80 border border-teal-200 rounded-xl p-3.5 text-xs sm:text-sm text-teal-950 flex items-start gap-3"
+          class="bg-white rounded-2xl border border-slate-300 shadow-xs overflow-hidden flex flex-col"
         >
           <div
-            class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center shrink-0 font-bold text-sm"
+            class="bg-[#00979C] text-white px-5 py-3 flex items-center justify-between"
           >
-            <i id="mission-icon" class="fa-solid fa-id-card"></i>
-          </div>
-          <div class="space-y-1">
-            <div id="mission-title" class="font-bold">
-              Misi 1: Menampilkan Nama dan Kelas pada LCD I2C
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-code text-white text-sm"></i>
+              <h3 class="font-bold text-sm uppercase tracking-wider">
+                3. Program Arduino C++ (ESP32 Bluetooth Serial)
+              </h3>
             </div>
-            <p id="mission-goal" class="text-slate-600 text-xs">
-              Menampilkan teks Nama di Baris 0 dan Kelas di Baris 1 pada layar
-              LCD 16x2.
-            </p>
-          </div>
-        </div>
-
-        <!-- PANEL BLOK PROGRAM MBLOCK -->
-        <div
-          class="rounded-xl overflow-hidden shadow-md border border-slate-300 bg-white font-sans"
-        >
-          <!-- HEADER BAR MBLOCK -->
-          <div
-            class="bg-[#ff8c00] px-4 py-2 flex items-center justify-between text-white select-none"
-          >
-            <div class="flex items-center gap-3">
-              <i class="fa-solid fa-cubes text-lg"></i>
-              <span class="font-extrabold text-sm tracking-wide"
-                >mBlock Visual Program</span
-              >
-            </div>
-            <span
-              id="blockFileName"
-              class="text-xs bg-white/20 px-2.5 py-1 rounded font-mono font-semibold"
+            <button
+              onclick="copySourceCode()"
+              class="text-xs bg-teal-800 hover:bg-teal-900 px-3 py-1.5 rounded-lg text-white font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
-              mblock_misi1.png
+              <i class="fa-regular fa-copy"></i> Copy Program
+            </button>
+          </div>
+
+          <div
+            class="p-5 arduino-ide-theme border-t border-slate-200 overflow-x-auto font-mono text-xs sm:text-sm leading-relaxed"
+          >
+            <pre
+              id="cppCodeBlock"
+            ><code><span class="arduino-keyword1">#include</span> <span class="arduino-string">"BluetoothSerial.h"</span>
+
+<span class="arduino-keyword1">BluetoothSerial</span> SerialBT;
+
+<span class="arduino-keyword1">const int</span> ledPin = <span class="arduino-number">2</span>;
+<span class="arduino-keyword1">String</span> receivedData = <span class="arduino-string">""</span>;
+
+<span class="arduino-keyword1">void</span> <span class="arduino-function">setup</span>() {
+  <span class="arduino-keyword1">Serial</span>.<span class="arduino-function">begin</span>(<span class="arduino-number">115200</span>);
+  SerialBT.<span class="arduino-function">begin</span>(<span class="arduino-string">"SMTI_YK"</span>);
+  <span class="arduino-function">pinMode</span>(ledPin, <span class="arduino-keyword2">OUTPUT</span>);
+
+  <span class="arduino-function">delay</span>(<span class="arduino-number">2000</span>);
+  <span class="arduino-keyword1">Serial</span>.<span class="arduino-function">println</span>(<span class="arduino-string">"Bluetooth aktif, menunggu menerima pesan..."</span>);
+}
+
+<span class="arduino-keyword1">void</span> <span class="arduino-function">loop</span>() {
+  <span class="arduino-keyword2">if</span> (SerialBT.<span class="arduino-function">available</span>()) {
+    receivedData = SerialBT.<span class="arduino-function">readStringUntil</span>(<span class="arduino-string">'\n'</span>);
+    receivedData.<span class="arduino-function">trim</span>();
+
+    <span class="arduino-keyword1">Serial</span>.<span class="arduino-function">print</span>(<span class="arduino-string">"Data diterima: "</span>);
+    <span class="arduino-keyword1">Serial</span>.<span class="arduino-function">println</span>(receivedData);
+
+    <span class="arduino-keyword2">if</span> (receivedData.<span class="arduino-function">equalsIgnoreCase</span>(<span class="arduino-string">"led1on"</span>)) {
+      <span class="arduino-function">digitalWrite</span>(ledPin, <span class="arduino-keyword2">HIGH</span>);
+      <span class="arduino-keyword1">Serial</span>.<span class="arduino-function">println</span>(<span class="arduino-string">"LED ON"</span>);
+    } 
+    <span class="arduino-keyword2">else if</span> (receivedData.<span class="arduino-function">equalsIgnoreCase</span>(<span class="arduino-string">"led1off"</span>)) {
+      <span class="arduino-function">digitalWrite</span>(ledPin, <span class="arduino-keyword2">LOW</span>);
+      <span class="arduino-keyword1">Serial</span>.<span class="arduino-function">println</span>(<span class="arduino-string">"LED OFF"</span>);
+    } 
+  }
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- PANEL SIMULASI INTERAKTIF -->
+        <div
+          class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6"
+        >
+          <div
+            class="border-b border-slate-100 pb-3 flex items-center justify-between"
+          >
+            <h3
+              class="text-base sm:text-lg font-extrabold text-slate-800 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-gamepad text-indigo-600"></i> Modul Simulasi
+              Pengujian Interaktif
+            </h3>
+            <span
+              class="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-lg border border-emerald-200"
+            >
+              Live Simulator
             </span>
           </div>
 
-          <!-- AREA DISPLAY GAMBAR BLOK MBLOCK (DITAMBAHKAN PREVIEW LARGE) -->
-          <div
-            onclick="openCurrentProgramModal()"
-            class="img-preview-container p-4 bg-slate-50 flex items-center justify-center min-h-[320px] cursor-zoom-in relative group"
-          >
-            <img
-              id="blockProgramImage"
-              src="img/program1.png"
-              alt="Program Blok mBlock"
-              class="max-h-[420px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs"
-              onerror="
-                this.onerror = null;
-                this.src = 'lcd1.png';
-              "
-            />
-            <div
-              class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-            >
-              <span
-                class="bg-slate-900/80 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full backdrop-blur-xs flex items-center gap-1.5"
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <!-- SIMULATOR HP -->
+            <div class="flex justify-center">
+              <div
+                class="w-[240px] bg-slate-900 rounded-[32px] p-3 shadow-xl border-4 border-slate-800"
               >
-                <i class="fa-solid fa-magnifying-glass-plus"></i> Klik untuk
-                Perbesar Program Blok
-              </span>
+                <div
+                  class="bg-white rounded-[22px] overflow-hidden text-left flex flex-col min-h-[360px] border border-slate-200"
+                >
+                  <!-- TOP BAR -->
+                  <div
+                    class="bg-indigo-700 text-white p-3 pt-4 text-xs font-bold flex items-center justify-between shadow-xs"
+                  >
+                    <span>Screen1</span>
+                    <i class="fa-brands fa-bluetooth-b text-xs opacity-80"></i>
+                  </div>
+
+                  <!-- BODY APP -->
+                  <div
+                    class="p-3 space-y-3 flex-1 flex flex-col justify-start bg-slate-50"
+                  >
+                    <div>
+                      <button
+                        id="simBTBtn"
+                        onclick="toggleSimConnect()"
+                        class="w-full bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-3 rounded shadow-xs transition flex items-center justify-center gap-1.5"
+                      >
+                        <i class="fa-solid fa-link text-[10px]"></i>
+                        <span id="simBTText">Koneksi Bluetooth</span>
+                      </button>
+                      <div
+                        id="simStatusText"
+                        class="text-[10px] text-slate-500 text-center mt-1 font-mono"
+                      >
+                        Status: Terputus
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                      <button
+                        onclick="simSendCmd('led1on')"
+                        class="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-bold py-2 px-2 rounded shadow-xs transition"
+                      >
+                        Button ON
+                      </button>
+                      <button
+                        onclick="simSendCmd('led1off')"
+                        class="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-bold py-2 px-2 rounded shadow-xs transition"
+                      >
+                        Button OFF
+                      </button>
+                    </div>
+
+                    <div
+                      class="mt-auto bg-white p-3 rounded-xl border border-slate-200 text-center space-y-2 shadow-2xs"
+                    >
+                      <span
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block"
+                        >Indikator Physical LED</span
+                      >
+                      <div class="flex justify-center items-center gap-2">
+                        <div
+                          id="simLedBulb"
+                          class="w-7 h-7 rounded-full bg-slate-300 border-2 border-slate-400 transition-all duration-300"
+                        ></div>
+                        <span
+                          id="simLedLabel"
+                          class="text-xs font-mono font-bold text-slate-600"
+                          >OFF</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <!-- SERIAL MONITOR SECTION -->
-        <div
-          class="rounded-xl overflow-hidden shadow-sm border border-slate-300 bg-white font-sans mt-4"
-        >
-          <!-- SERIAL MONITOR HEADER -->
-          <div
-            class="bg-slate-200/90 border-b border-slate-300 px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-slate-800 select-none"
-          >
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-terminal text-teal-700 text-xs"></i>
-              <span class="font-bold text-xs uppercase tracking-wide"
-                >Status Log Simulasi LCD</span
+            <!-- OUTPUT LOG SERIAL MONITOR -->
+            <div class="md:col-span-2 space-y-3">
+              <div
+                class="rounded-xl overflow-hidden shadow-xs border border-slate-300 bg-white font-sans"
               >
-            </div>
+                <div
+                  class="bg-slate-800 border-b border-slate-700 px-4 py-2.5 flex items-center justify-between gap-2 text-white select-none"
+                >
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-teal-400 text-xs"></i>
+                    <span class="font-bold text-xs uppercase tracking-wide"
+                      >Serial Monitor Output (Baud: 115200)</span
+                    >
+                  </div>
+                  <button
+                    onclick="clearSerialMonitor()"
+                    class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-2.5 py-1 rounded transition cursor-pointer"
+                  >
+                    <i class="fa-solid fa-eraser mr-1"></i> Clear Log
+                  </button>
+                </div>
 
-            <!-- ACTION BUTTONS -->
-            <div class="flex items-center gap-1.5">
-              <button
-                id="btnUpload"
-                onclick="uploadAndRun()"
-                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-xs flex items-center gap-1.5 transition cursor-pointer"
-                title="Jalankan Simulasi"
-              >
-                <i class="fa-solid fa-play text-[10px]"></i>
-                <span>Jalankan Simulasi</span>
-              </button>
-
-              <button
-                id="btnStop"
-                onclick="stopProgram()"
-                class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-xs flex items-center gap-1.5 transition cursor-pointer"
-                title="Hentikan Simulasi"
-              >
-                <i class="fa-solid fa-stop text-[10px]"></i>
-                <span>Stop</span>
-              </button>
-
-              <button
-                onclick="clearSerialMonitor()"
-                class="bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold px-2 py-1 rounded border border-slate-300 transition cursor-pointer"
-                title="Bersihkan Log"
-              >
-                <i class="fa-solid fa-eraser text-slate-500 mr-1"></i>Clear
-              </button>
-            </div>
-          </div>
-
-          <!-- SERIAL MONITOR DISPLAY AREA -->
-          <div
-            class="p-3 bg-white min-h-[120px] max-h-[180px] overflow-y-auto font-mono text-xs text-slate-800 space-y-1.5 border-b border-slate-200"
-            id="serialMonitorOutput"
-          >
-            <div class="text-slate-400 italic">
-              [Simulator Siap. Klik "Jalankan Simulasi" untuk menguji tampilan
-              LCD]
+                <div
+                  id="serialMonitorOutput"
+                  class="p-4 bg-slate-950 text-emerald-400 min-h-[220px] max-h-[260px] overflow-y-auto font-mono text-xs space-y-1.5"
+                >
+                  <div class="text-slate-500 italic">
+                    [Sistem Siap. Tekan tombol koneksi Bluetooth lalu tekan
+                    Button ON / OFF pada HP di sebelah kiri]
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- LIGHTBOX MODAL UNTUK PREVIEW GAMBAR BESAR -->
+    <!-- LIGHTBOX MODAL PREVIEW GAMBAR -->
     <div
       id="imageModal"
       class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 hidden"
       onclick="closeModal()"
     >
       <div
-        class="relative max-w-5xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-700 flex flex-col max-h-[90vh]"
+        class="relative max-w-6xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-700 flex flex-col max-h-[92vh]"
         onclick="event.stopPropagation()"
       >
         <div
-          class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between"
+          class="bg-slate-900 text-white px-5 py-3 flex items-center justify-between"
         >
           <h3 id="modalTitle" class="text-xs sm:text-sm font-bold truncate">
-            Pratinjau Gambar
+            Pratinjau Gambar Mode Penuh
           </h3>
           <button
             onclick="closeModal()"
-            class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer text-xs"
+            class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer text-sm"
           >
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
         <div
-          class="p-3 bg-slate-950 flex items-center justify-center overflow-auto flex-1"
+          class="p-4 bg-slate-950 flex items-center justify-center overflow-auto flex-1"
         >
           <img
             id="modalImage"
             src=""
             alt="Pratinjau"
-            class="max-h-[75vh] w-auto object-contain rounded"
+            class="max-h-[80vh] w-auto object-contain rounded-lg"
           />
         </div>
       </div>
     </div>
 
-    <!-- SCRIPT LOGIKA PROGRAM -->
+    <!-- LOGIKA JAVASCRIPT -->
     <script>
-      const missions = {
-        1: {
-          blockImg: "img/program1.png",
-          blockFallbackImg: "lcd1.png",
-          title: "Misi 1: Menampilkan Teks Nama dan Kelas pada LCD I2C",
-          icon: "fa-id-card",
-          schemaTitle: "Skema Misi 1 (Arduino Uno + LCD I2C)",
-          schemaImg: "img/rangkaian1.png",
-          schemaFallbackImg: "gambar1.png",
-          schemaDesc:
-            "<strong>Skema Misi 1:</strong> Modul LCD 16x2 terhubung menggunakan adapter I2C. Kabel <strong class='text-teal-700'>SDA ke Pin A4</strong>, Kabel <strong class='text-teal-700'>SCL ke Pin A5</strong>, VCC ke 5V, dan GND ke GND.",
-          desc: "<strong>Tugas Misi 1:</strong> Inisialisasi LCD I2C (0x27, Row 2, Column 16), lalu tampilkan string Nama pada Row 0 Column 0 dan string Kelas pada Row 1 Column 0 secara berulang (forever).",
-        },
-        2: {
-          blockImg: "img/program2.png",
-          blockFallbackImg: "lcd2.png",
-          title: "Misi 2: Monitoring Sensor DHT11 pada LCD I2C",
-          icon: "fa-temperature-three-quarters",
-          schemaTitle: "Skema Misi 2 (Arduino Uno + LCD I2C + DHT11)",
-          schemaImg: "img/rangkaian2.png",
-          schemaFallbackImg: "gambar2.png",
-          schemaDesc:
-            "<strong>Skema Misi 2:</strong> Tambahkan Sensor DHT11 ke rangkaian. Pin Data DHT11 terhubung ke <strong class='text-teal-700'>Pin Digital 2</strong>. LCD terhubung ke pin I2C (A4 & A5).",
-          desc: "<strong>Tugas Misi 2:</strong> Inisialisasi sensor DHT11 di Pin 2 dan LCD I2C (0x27). Tampilkan label 'temp:' & nilai suhu di Row 0, serta label 'humi:' & nilai kelembaban di Row 1.",
-        },
-      };
+      let isBtConnected = false;
 
-      let currentMissionKey = "1";
-      let liveTimer = null;
-      let isUploading = false;
-
-      // MODAL LIGHTBOX FUNCTIONS
       function openModal(primarySrc, fallbackSrc, titleText) {
         const modal = document.getElementById("imageModal");
         const modalImg = document.getElementById("modalImage");
@@ -776,211 +689,120 @@
         document.getElementById("imageModal").classList.add("hidden");
       }
 
-      function openCurrentSchemaModal() {
-        const data = missions[currentMissionKey];
-        openModal(data.schemaImg, data.schemaFallbackImg, data.schemaTitle);
-      }
-
-      function openCurrentProgramModal() {
-        const data = missions[currentMissionKey];
-        openModal(
-          data.blockImg,
-          data.blockFallbackImg,
-          `Program mBlock ${data.title}`,
-        );
-      }
-
-      function writeToSimLcd(line1Text, line2Text) {
-        const l1 = document.getElementById("lcdLine1");
-        const l2 = document.getElementById("lcdLine2");
-
-        const padLine1 = (line1Text || "").padEnd(16, " ").substring(0, 16);
-        const padLine2 = (line2Text || "").padEnd(16, " ").substring(0, 16);
-
-        l1.innerText = padLine1;
-        l2.innerText = padLine2;
-      }
-
-      function updateSimData() {
-        if (!liveTimer) return;
-
-        const tempVal = parseFloat(
-          document.getElementById("tempSlider").value,
-        ).toFixed(1);
-        const humVal = parseInt(document.getElementById("humSlider").value);
-
-        document.getElementById("tempValText").innerText = `${tempVal} °C`;
-        document.getElementById("humValText").innerText = `${humVal} %`;
-
-        if (currentMissionKey === "2") {
-          const line1 = `temp: ${tempVal}`;
-          const line2 = `humi: ${humVal}`;
-          writeToSimLcd(line1, line2);
-        }
-      }
-
-      function printLiveLog(logText) {
+      function printLog(text) {
         const monitor = document.getElementById("serialMonitorOutput");
         const line = document.createElement("div");
-        line.className =
-          "flex items-center gap-2 text-xs font-mono text-slate-800";
-        line.innerHTML = `<span class="text-teal-600 font-semibold">&gt;</span> <span>${logText}</span>`;
+        line.className = "flex items-center gap-2 font-mono text-xs";
+        line.innerHTML = `<span class="text-slate-500">&gt;</span> <span>${text}</span>`;
         monitor.appendChild(line);
         monitor.scrollTop = monitor.scrollHeight;
       }
 
-      function startContinuousOutput(key) {
-        stopProgramSilently();
-        const monitor = document.getElementById("serialMonitorOutput");
-        monitor.innerHTML = "";
-
-        document.getElementById("lcdDisplayBox").classList.remove("lcd-off");
-
-        if (key === "1") {
-          printLiveLog("Program mBlock Dimulai...");
-          printLiveLog("Inisialisasi LCD I2C (Address: 0x27, 16x2)...");
-          writeToSimLcd("Nama", "Kelas");
-
-          liveTimer = setInterval(() => {
-            printLiveLog("LCD Active - Tampil: Nama & Kelas");
-          }, 3000);
-        } else if (key === "2") {
-          printLiveLog("Program mBlock Dimulai...");
-          printLiveLog("Inisialisasi DHT11 Pin 2 & LCD I2C...");
-
-          updateSimData();
-          liveTimer = setInterval(() => {
-            const tempVal = parseFloat(
-              document.getElementById("tempSlider").value,
-            ).toFixed(1);
-            const humVal = parseInt(document.getElementById("humSlider").value);
-            updateSimData();
-            printLiveLog(
-              `DHT11 Read -> Suhu: ${tempVal}°C | Kelembaban: ${humVal}%`,
-            );
-          }, 2500);
-        }
-      }
-
-      function uploadAndRun() {
-        if (isUploading) return;
-        isUploading = true;
-
-        stopProgramSilently();
-
-        const btnUpload = document.getElementById("btnUpload");
-        btnUpload.disabled = true;
-        btnUpload.classList.add("opacity-50", "cursor-not-allowed");
-
-        printLiveLog("Mengunggah program mBlock ke Arduino Uno...");
-
-        setTimeout(() => {
-          btnUpload.disabled = false;
-          btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
-          isUploading = false;
-          startContinuousOutput(currentMissionKey);
-        }, 600);
-      }
-
-      function stopProgramSilently() {
-        if (liveTimer) {
-          clearInterval(liveTimer);
-          liveTimer = null;
-        }
-        isUploading = false;
-      }
-
-      function stopProgram() {
-        stopProgramSilently();
-
-        const btnUpload = document.getElementById("btnUpload");
-        btnUpload.disabled = false;
-        btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
-
-        document.getElementById("lcdDisplayBox").classList.add("lcd-off");
-        writeToSimLcd("", "");
-
-        printLiveLog("[Simulasi & LCD Dihentikan]");
-      }
-
       function clearSerialMonitor() {
         document.getElementById("serialMonitorOutput").innerHTML =
-          `<span class="text-slate-400 italic">[Log Cleared]</span>`;
+          `<div class="text-slate-500 italic">[Log Cleared]</div>`;
       }
 
-      function switchMission(key) {
-        const keys = ["1", "2"];
-        keys.forEach((k) => {
-          const btn = document.getElementById(`sub-btn-${k}`);
-          if (btn) {
-            if (k === key) {
-              btn.className =
-                "px-4 py-2.5 rounded-2xl text-xs font-bold bg-teal-700 text-white shadow-xs transition cursor-pointer flex items-center gap-2";
-            } else {
-              btn.className =
-                "px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition cursor-pointer flex items-center gap-2";
-            }
-          }
-        });
+      function toggleSimConnect() {
+        isBtConnected = !isBtConnected;
+        const btnText = document.getElementById("simBTText");
+        const statusText = document.getElementById("simStatusText");
+        const btn = document.getElementById("simBTBtn");
 
-        updateView(key);
-      }
-
-      function updateView(key) {
-        stopProgramSilently();
-        currentMissionKey = key;
-        const data = missions[key];
-
-        document.getElementById("mission-title").innerText = data.title;
-        document.getElementById("mission-goal").innerHTML = data.desc;
-        document.getElementById("mission-icon").className =
-          `fa-solid ${data.icon}`;
-        document.getElementById("blockFileName").innerText =
-          key === "1" ? "mblock_misi1.png" : "mblock_misi2.png";
-
-        // Gambar Blok Program
-        const blockImgElem = document.getElementById("blockProgramImage");
-        blockImgElem.src = data.blockImg;
-        blockImgElem.onerror = function () {
-          this.onerror = null;
-          this.src = data.blockFallbackImg;
-        };
-
-        // Toggle Slider DHT11
-        const dhtBox = document.getElementById("dhtSliderBox");
-        if (key === "1") {
-          dhtBox.classList.add("hidden");
+        if (isBtConnected) {
+          btnText.innerText = "Terhubung: SMTI_YK";
+          statusText.innerText = "Status: Connected (SMTI_YK)";
+          statusText.className =
+            "text-[10px] text-emerald-600 font-bold text-center mt-1 font-mono";
+          btn.className =
+            "w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded shadow-xs transition flex items-center justify-center gap-1.5";
+          printLog("Bluetooth aktif, terhubung ke perangkat SMTI_YK");
         } else {
-          dhtBox.classList.remove("hidden");
+          btnText.innerText = "Koneksi Bluetooth";
+          statusText.innerText = "Status: Terputus";
+          statusText.className =
+            "text-[10px] text-slate-500 text-center mt-1 font-mono";
+          btn.className =
+            "w-full bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-3 rounded shadow-xs transition flex items-center justify-center gap-1.5";
+          printLog("Koneksi Bluetooth terputus");
+        }
+      }
+
+      function simSendCmd(cmd) {
+        if (!isBtConnected) {
+          alert(
+            "Silakan hubungkan koneksi Bluetooth terlebih dahulu pada simulator HP!",
+          );
+          return;
         }
 
-        // Skema Image & Desc
-        document.getElementById("schemaTitleTag").innerText = data.schemaTitle;
-        document.getElementById("schemaDesc").innerHTML = data.schemaDesc;
-        const schemaImgElem = document.getElementById("schemaImage");
-        schemaImgElem.src = data.schemaImg;
-        schemaImgElem.onerror = function () {
-          this.onerror = null;
-          this.src = data.schemaFallbackImg;
-        };
+        printLog(`Data diterima: ${cmd}`);
 
-        const monitor = document.getElementById("serialMonitorOutput");
-        monitor.innerHTML = `<span class="text-slate-400 italic">[Simulator Siap. Klik "Jalankan Simulasi" untuk menguji tampilan LCD]</span>`;
+        const bulb = document.getElementById("simLedBulb");
+        const label = document.getElementById("simLedLabel");
 
-        document.getElementById("lcdDisplayBox").classList.remove("lcd-off");
-        writeToSimLcd("LCD 16x2 READY", "Klik Run");
+        if (cmd === "led1on") {
+          bulb.className =
+            "w-7 h-7 rounded-full bg-red-500 border-2 border-red-300 shadow-[0_0_12px_rgba(239,68,68,0.8)] transition-all duration-300";
+          label.innerText = "ON (HIGH)";
+          label.className = "text-xs font-mono font-bold text-red-600";
+          printLog("LED ON");
+        } else if (cmd === "led1off") {
+          bulb.className =
+            "w-7 h-7 rounded-full bg-slate-300 border-2 border-slate-400 transition-all duration-300";
+          label.innerText = "OFF (LOW)";
+          label.className = "text-xs font-mono font-bold text-slate-600";
+          printLog("LED OFF");
+        }
       }
 
-      // Esc key listener untuk tutup modal
+      function copySourceCode() {
+        const rawCode = `
+#include "BluetoothSerial.h"
+
+BluetoothSerial SerialBT;
+
+const int ledPin = 2;
+String receivedData = "";
+
+void setup() {
+  Serial.begin(115200);
+  SerialBT.begin("SMTI_YK");
+  pinMode(ledPin, OUTPUT);
+
+  delay(2000);
+  Serial.println("Bluetooth aktif, menunggu menerima pesan...");
+}
+
+void loop() {
+  if (SerialBT.available()) {
+    receivedData = SerialBT.readStringUntil('\\n');
+    receivedData.trim();
+
+    Serial.print("Data diterima: ");
+    Serial.println(receivedData);
+
+    if (receivedData.equalsIgnoreCase("led1on")) {
+      digitalWrite(ledPin, HIGH);
+      Serial.println("LED ON");
+    } 
+    else if (receivedData.equalsIgnoreCase("led1off")) {
+      digitalWrite(ledPin, LOW);
+      Serial.println("LED OFF");
+    } 
+  }
+}
+        `.trim();
+
+        navigator.clipboard.writeText(rawCode);
+        alert("Kode sketch C++ berhasil disalin!");
+      }
+
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") {
           closeModal();
         }
       });
-
-      window.onload = function () {
-        switchMission("1");
-      };
     </script>
   </body>
 </html>
