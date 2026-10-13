@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Praktik Terpadu RFID MFRC522 - Misi 1, 2, & 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <style>
+      body {
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #codeDisplay {
+        user-select: text !important;
+        -webkit-user-select: text !important;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+      }
+      .lcd-screen {
+        background-color: #0d2b1d;
+        color: #33ff66;
+        font-family: "Courier New", Courier, monospace;
+        text-shadow: 0 0 5px rgba(51, 255, 102, 0.6);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased pb-10"
+  >
+    <!-- HEADER APP -->
+    <header
+      class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center text-sm font-bold"
+          >
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span
+                id="badgeSub"
+                class="text-[10px] font-extrabold bg-teal-100 text-teal-800 px-2 py-0.5 rounded uppercase tracking-wider"
+              >
+                MISI 1
+              </span>
+            </div>
+            <h1
+              id="headerTitle"
+              class="text-sm sm:text-base font-black text-slate-900 leading-tight mt-0.5"
+            >
+              Membaca Nomor UID RFID
+            </h1>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <!-- HERO BANNER -->
+      <section
+        class="bg-gradient-to-r from-teal-800 to-teal-700 text-white rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden"
+      >
+        <div
+          class="absolute -right-4 -bottom-6 opacity-15 pointer-events-none hidden sm:block select-none"
+        >
+          <i
+            id="heroIcon"
+            class="fa-solid fa-id-card text-[140px] text-teal-100"
+          ></i>
+        </div>
+        <div class="relative z-10 space-y-1.5 max-w-3xl">
+          <div
+            class="inline-flex items-center gap-2 bg-white/15 border border-white/20 text-teal-50 px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md"
+          >
+            <i class="fa-solid fa-graduation-cap text-teal-200 text-xs"></i>
+            <span>Modul Pembelajaran Praktikum Mekatronika</span>
+          </div>
+          <h2
+            id="heroTitle"
+            class="text-lg sm:text-xl font-extrabold text-white leading-tight"
+          >
+            Misi 1: Membaca Kode Unik (UID) Kartu & Tag RFID
+          </h2>
+          <p
+            id="heroDesc"
+            class="text-xs sm:text-sm text-teal-50/90 leading-relaxed font-normal"
+          >
+            Mempelajari cara menginterfasikan modul RFID MFRC522 melalui
+            komunikasi SPI (SDA: Pin 10, RST: Pin 9). Program membaca ID unik
+            (UID) dari kartu/tag RFID serta menampilkan jenis kartunya pada
+            Serial Monitor.
+          </p>
+        </div>
+      </section>
+
+      <!-- SKEMA RANGKAIAN & MISI NAVIGASI DI BAWAHNYA -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- GAMBAR RANGKAIAN + TOMBOL MISI 1, 2, 3 DI BAWAHNYA -->
+        <div
+          class="md:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4"
+        >
+          <div>
+            <div
+              class="w-full flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"
+            >
+              <h2
+                class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2"
+              >
+                <i class="fa-solid fa-diagram-project text-teal-600"></i> Skema
+                Rangkaian Sistem
+              </h2>
+              <span
+                class="text-[11px] text-slate-500 font-medium hidden sm:inline"
+                >Klik gambar untuk memperbesar</span
+              >
+              <span
+                id="skemaBadge"
+                class="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-100"
+              >
+                SDA: Pin 10 | RST: Pin 9 | SPI Pins
+              </span>
+            </div>
+
+            <!-- Area Gambar Skema -->
+            <div
+              class="w-full bg-slate-50 p-4 sm:p-6 rounded-xl border border-slate-200 flex items-center justify-center min-h-[320px] relative group cursor-pointer"
+              onclick="openImageModal()"
+            >
+              <img
+                id="skemaImage"
+                src="gambar1.png"
+                alt="Skema Rangkaian RFID"
+                class="max-h-[320px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-transform duration-300 group-hover:scale-105"
+                onerror="
+                  this.onerror = null;
+                  this.src =
+                    'https://via.placeholder.com/600x350?text=Skema+Rangkaian+RFID';
+                "
+              />
+              <div
+                class="absolute inset-0 bg-slate-900/15 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center pointer-events-none"
+              >
+                <span
+                  class="bg-teal-700 text-white text-xs px-3 py-1.5 rounded-lg shadow-md font-bold flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-magnifying-glass-plus"></i> Perbesar
+                  Gambar
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MISI 1, 2, DAN 3 DI BAWAH GAMBAR RANGKAIAN -->
+          <div class="border-t border-slate-100 pt-3">
+            <span
+              class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider"
+              >Pilih Misi Praktikum:</span
+            >
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                onclick="switchMisi(1)"
+                id="btnMisi1"
+                class="py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-teal-600 text-white shadow-xs cursor-pointer"
+              >
+                <i class="fa-solid fa-1"></i> Misi 1
+              </button>
+              <button
+                onclick="switchMisi(2)"
+                id="btnMisi2"
+                class="py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 cursor-pointer"
+              >
+                <i class="fa-solid fa-2"></i> Misi 2
+              </button>
+              <button
+                onclick="switchMisi(3)"
+                id="btnMisi3"
+                class="py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 cursor-pointer"
+              >
+                <i class="fa-solid fa-3"></i> Misi 3
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIMULATOR PANEL DINAMIS -->
+        <div
+          class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between items-center text-center"
+        >
+          <div
+            class="w-full border-b border-slate-100 pb-2.5 flex items-center justify-between mb-2"
+          >
+            <h2
+              id="simTitle"
+              class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-id-card text-teal-600"></i> Visual RFID
+            </h2>
+            <span
+              id="simBadge"
+              class="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200"
+              >SPI BUS</span
+            >
+          </div>
+
+          <!-- KONTEN SIMULATOR BERUBAH SESUAI MISI -->
+          <div
+            id="simulatorContainer"
+            class="w-full my-auto flex flex-col items-center justify-center py-4"
+          >
+            <div
+              class="relative w-full h-full min-h-[160px] bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-200 shadow-xs"
+            >
+              <div
+                class="w-44 h-28 bg-gradient-to-br from-teal-600 to-teal-800 rounded-xl p-3 text-white shadow-md flex flex-col justify-between cursor-pointer hover:scale-105 transition-all"
+                onclick="tapCard('0B 3C B5 02')"
+              >
+                <div class="flex justify-between items-center text-xs">
+                  <i class="fa-solid fa-wifi rotate-90 text-teal-200"></i>
+                  <span class="font-mono text-[10px] opacity-80"
+                    >MIFARE 1K</span
+                  >
+                </div>
+                <div
+                  class="text-center font-mono text-xs tracking-widest font-bold"
+                >
+                  0B 3C B5 02
+                </div>
+                <div class="text-[9px] text-right text-teal-200">Tap Kartu</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="simActionButtons" class="w-full mt-3 space-y-2">
+            <button
+              onclick="tapCard('0B 3C B5 02')"
+              class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i class="fa-solid fa-rss"></i> Tap Kartu (0B 3C B5 02)
+            </button>
+            <button
+              onclick="tapCard('9A 12 EF 44')"
+              class="w-full py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i class="fa-solid fa-key"></i> Tap Keyfob (9A 12 EF 44)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- CODE EDITOR & SERIAL MONITOR -->
+      <section class="space-y-4">
+        <!-- DESKRIPSI KODE -->
+        <div
+          class="bg-teal-50/80 border border-teal-200 rounded-xl p-3.5 text-xs sm:text-sm text-teal-950 flex items-start gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center shrink-0 font-bold text-sm"
+          >
+            <i class="fa-solid fa-code"></i>
+          </div>
+          <div class="space-y-1">
+            <div id="codeDescTitle" class="font-bold text-slate-900">
+              Program Membaca Nomor RFID
+            </div>
+            <p id="codeDescText" class="text-slate-600 text-xs">
+              Program menginisialisasi pustaka
+              <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded"
+                >&lt;SPI.h&gt;</code
+              >
+              dan
+              <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded"
+                >&lt;MFRC522.h&gt;</code
+              >
+              untuk membaca nomor UID unik.
+            </p>
+          </div>
+        </div>
+
+        <!-- EDITOR ARDUINO -->
+        <div
+          class="rounded-xl overflow-hidden shadow-md border border-slate-300 bg-white font-sans"
+        >
+          <div
+            class="bg-[#008184] px-3 py-2 flex items-center justify-between text-white select-none"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="bg-white text-slate-800 px-3 py-1 rounded-md text-xs font-medium flex items-center gap-2 border border-teal-700 shadow-xs"
+              >
+                <i class="fa-solid fa-microchip text-teal-600"></i>
+                <span>Arduino Uno</span>
+              </div>
+            </div>
+            <button
+              onclick="copyCode()"
+              class="bg-[#006e71] hover:bg-[#005a5d] text-white text-xs font-semibold px-3 py-1 rounded-md flex items-center gap-1.5 transition border border-teal-600 cursor-pointer"
+            >
+              <i class="fa-solid fa-copy"></i>
+              <span id="btnCopyText" class="hidden sm:inline">Salin Kode</span>
+            </button>
+          </div>
+
+          <div
+            class="bg-slate-100 border-b border-slate-200 px-3 py-1.5 flex items-center justify-between text-slate-600 text-xs select-none"
+          >
+            <div
+              class="flex items-center gap-2 font-mono font-medium text-slate-700"
+            >
+              <i class="fa-solid fa-file-code text-teal-600"></i>
+              <span id="fileNameLabel">sketch_sub6.1_baca_uid.ino</span>
+            </div>
+          </div>
+
+          <div class="flex min-h-[220px]">
+            <div class="p-3 sm:p-4 overflow-x-auto w-full bg-white">
+              <div
+                id="codeDisplay"
+                class="font-mono text-xs sm:text-sm leading-relaxed"
+              ></div>
+            </div>
+          </div>
+
+          <div
+            class="bg-[#005f63] px-3 py-1 text-[11px] text-teal-100 flex justify-between items-center font-sans border-t border-teal-800 select-none"
+          >
+            <span id="ideStatusText">Ready | SPI Pins: SDA 10, RST 9</span>
+            <span class="font-mono text-[10px] text-teal-200"
+              >Arduino Uno on COM3</span
+            >
+          </div>
+        </div>
+
+        <!-- SERIAL MONITOR -->
+        <div
+          class="rounded-xl overflow-hidden shadow-sm border border-slate-300 bg-white font-sans"
+        >
+          <div
+            class="bg-slate-200/90 border-b border-slate-300 px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-slate-800 select-none"
+          >
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-terminal text-teal-700 text-xs"></i>
+              <span class="font-bold text-xs uppercase tracking-wide"
+                >Serial Monitor</span
+              >
+              <span
+                class="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold"
+                >9600 baud</span
+              >
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button
+                onclick="uploadAndRun()"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <i class="fa-solid fa-play text-[10px]"></i>
+                <span>Upload & Run</span>
+              </button>
+              <button
+                onclick="clearSerialMonitor()"
+                class="bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold px-2 py-1 rounded border border-slate-300 transition cursor-pointer"
+              >
+                <i class="fa-solid fa-eraser text-slate-500 mr-1"></i>Clear
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="p-3 bg-white min-h-[140px] max-h-[200px] overflow-y-auto font-mono text-xs text-slate-800 space-y-1.5 border-b border-slate-200"
+            id="serialMonitorOutput"
+          >
+            <div class="text-slate-400 italic">
+              [Klik "Upload & Run" lalu interaksikan kartu RFID]
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- MODAL POPUP ZOOM -->
+    <div
+      id="imageModal"
+      class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4"
+      onclick="closeImageModal()"
+    >
+      <div
+        class="relative bg-white rounded-2xl max-w-3xl w-full p-4 shadow-2xl flex flex-col items-center"
+        onclick="event.stopPropagation()"
+      >
+        <div
+          class="w-full flex items-center justify-between pb-3 border-b border-slate-100 mb-3"
+        >
+          <h3
+            id="modalTitle"
+            class="font-extrabold text-slate-800 text-sm sm:text-base flex items-center gap-2"
+          >
+            <i class="fa-solid fa-diagram-project text-teal-600"></i> Skema
+            Rangkaian (Zoom View)
+          </h3>
+          <button
+            onclick="closeImageModal()"
+            class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold cursor-pointer transition-colors"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div
+          class="w-full bg-slate-50 p-4 rounded-xl flex items-center justify-center max-h-[70vh]"
+        >
+          <img
+            id="modalImage"
+            src="gambar1.png"
+            alt="Skema Rangkaian Zoom"
+            class="max-h-[60vh] w-auto max-w-full object-contain rounded-lg shadow-sm bg-white p-2"
+          />
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const codeMisi1 = `#include <SPI.h>
+#include <MFRC522.h>
+
+#define SS_PIN 10   // Pin SDA dihubungkan ke pin 10
+#define RST_PIN 9   // Pin RST dihubungkan ke pin 9
+
+MFRC522 mfrc522(SS_PIN, RST_PIN); // Membuat instance MFRC522
+
+void setup() {
+  Serial.begin(9600); // Memulai komunikasi Serial
+  SPI.begin();        // Memulai SPI
+  mfrc522.PCD_Init(); // Inisialisasi RFID reader
+  Serial.println("Scan kartu RFID untuk membaca UID");
+}
+
+void loop() {
+  if (!mfrc522.PICC_IsNewCardPresent()) return;
+  if (!mfrc522.PICC_ReadCardSerial()) return;
+
+  Serial.print("UID kartu: ");
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
+    Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+    Serial.print(mfrc522.uid.uidByte[i], HEX);
+  }
+  Serial.println();
+
+  MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
+  Serial.print("Tipe kartu: ");
+  Serial.println(mfrc522.PICC_GetTypeName(piccType));
+  mfrc522.PICC_HaltA();
+}`;
+
+      const codeMisi2 = `#include <SPI.h>
+#include <MFRC522.h>
+
+#define SS_PIN 10   // Pin SDA dihubungkan ke pin 10
+#define RST_PIN 9   // Pin RST dihubungkan ke pin 9
+
+MFRC522 mfrc522(SS_PIN, RST_PIN); // Membuat instance MFRC522
+
+bool compareUID(byte *readUID, byte *storedUID, byte size) {
+  for (byte i = 0; i < size; i++) {
+    if (readUID[i] != storedUID[i]) return false;
+  }
+  return true;
+}
+
+void setup() {
+  Serial.begin(9600);
+  SPI.begin();
+  mfrc522.PCD_Init();
+  Serial.println("Scan kartu RFID untuk identifikasi");
+}
+
+void loop() {
+  if (!mfrc522.PICC_IsNewCardPresent()) return;
+  if (!mfrc522.PICC_ReadCardSerial()) return;
+
+  byte readUID[4];
+  for (byte i = 0; i < 4; i++) { readUID[i] = mfrc522.uid.uidByte[i]; }
+
+  byte card1[4] = {0x0B, 0x3C, 0xB5, 0x02}; // Kartu 1
+  byte card2[4] = {0x9A, 0x12, 0xEF, 0x44}; // Kartu 2
+
+  if (compareUID(readUID, card1, mfrc522.uid.size)) {
+    Serial.println("Nama: ........");
+    Serial.println("Kelas: ........");
+  } 
+  else if (compareUID(readUID, card2, mfrc522.uid.size)) {
+    Serial.println("Nama: ........");
+    Serial.println("Kelas: ........");
+  } 
+  else {
+    Serial.println("UID kartu tidak dikenal");
+  }
+  mfrc522.PICC_HaltA();
+}`;
+
+      // Misi 3 dengan variabel card1 menggantikan storedUID
+      const codeMisi3 = `#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+#include <SPI.h>
+#include <MFRC522.h>
+
+#define SS_PIN 10
+#define RST_PIN 9
+#define RELAY_PIN 2 // Pin relay solenoid
+
+MFRC522 mfrc522(SS_PIN, RST_PIN);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+bool compareUID(byte *readUID, byte *storedUID, byte size) {
+  for (byte i = 0; i < size; i++) {
+    if (readUID[i] != storedUID[i]) return false;
+  }
+  return true;
+}
+
+void setup() {
+  Serial.begin(9600);
+  SPI.begin();
+  mfrc522.PCD_Init();
+  lcd.init();
+  lcd.backlight();
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW);
+  lcd.setCursor(0, 0);
+  lcd.print("RFID Door Lock");
+  lcd.setCursor(0, 1);
+  lcd.print("Scan Kartu RFID");
+}
+
+void loop() {
+  if (!mfrc522.PICC_IsNewCardPresent()) return;
+  if (!mfrc522.PICC_ReadCardSerial()) return;
+
+  byte readUID[4];
+  for (byte i = 0; i < 4; i++) { readUID[i] = mfrc522.uid.uidByte[i]; }
+  
+  byte card1[4] = {0x0B, 0x3C, 0xB5, 0x02}; // Menggunakan card1
+
+  if (compareUID(readUID, card1, mfrc522.uid.size)) {
+    lcd.clear();
+    lcd.setCursor(0, 0); lcd.print("Akses Diterima");
+    lcd.setCursor(0, 1); lcd.print("........");
+    digitalWrite(RELAY_PIN, HIGH); // Buka kunci
+    delay(5000);
+    digitalWrite(RELAY_PIN, LOW);
+    lcd.clear();
+    lcd.setCursor(0, 0); lcd.print("RFID Door Lock");
+    lcd.setCursor(0, 1); lcd.print("Scan Kartu RFID");
+  } else {
+    lcd.clear();
+    lcd.setCursor(0, 0); lcd.print("Akses Ditolak");
+    lcd.setCursor(0, 1); lcd.print("Tdk Dikenal");
+    delay(2000);
+    lcd.clear();
+    lcd.setCursor(0, 0); lcd.print("RFID Door Lock");
+    lcd.setCursor(0, 1); lcd.print("Scan Kartu RFID");
+  }
+  mfrc522.PICC_HaltA();
+}`;
+
+      let currentMisi = 1;
+      let isRunning = false;
+      let lockTimer = null;
+
+      function switchMisi(misi) {
+        currentMisi = misi;
+        isRunning = false;
+
+        for (let i = 1; i <= 3; i++) {
+          const btn = document.getElementById(`btnMisi${i}`);
+          if (i === misi) {
+            btn.className =
+              "py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-teal-600 text-white shadow-xs cursor-pointer";
+          } else {
+            btn.className =
+              "py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 cursor-pointer";
+          }
+        }
+
+        const badgeSub = document.getElementById("badgeSub");
+        const headerTitle = document.getElementById("headerTitle");
+        const heroTitle = document.getElementById("heroTitle");
+        const heroDesc = document.getElementById("heroDesc");
+        const heroIcon = document.getElementById("heroIcon");
+        const skemaBadge = document.getElementById("skemaBadge");
+        const skemaImage = document.getElementById("skemaImage");
+        const modalImage = document.getElementById("modalImage");
+        const simContainer = document.getElementById("simulatorContainer");
+        const simButtons = document.getElementById("simActionButtons");
+        const simTitle = document.getElementById("simTitle");
+        const simBadge = document.getElementById("simBadge");
+        const fileNameLabel = document.getElementById("fileNameLabel");
+        const ideStatusText = document.getElementById("ideStatusText");
+        const codeDescTitle = document.getElementById("codeDescTitle");
+        const codeDescText = document.getElementById("codeDescText");
+
+        if (misi === 1) {
+          badgeSub.innerText = "MISI 1";
+          headerTitle.innerText = "Membaca Nomor RFID (UID)";
+          heroTitle.innerText =
+            "Misi 1: Membaca Kode Unik (UID) Kartu & Tag RFID";
+          heroDesc.innerText =
+            "Mempelajari cara menginterfasikan modul RFID MFRC522 melalui komunikasi SPI (SDA: Pin 10, RST: Pin 9). Program membaca ID unik (UID) dari kartu/tag RFID serta menampilkan jenis kartunya.";
+          heroIcon.className = "fa-solid fa-id-card text-[140px] text-teal-100";
+          skemaBadge.innerText = "SDA: Pin 10 | RST: Pin 9 | SPI Pins";
+          skemaImage.src = "gambar1.png";
+          modalImage.src = "gambar1.png";
+
+          simTitle.innerHTML =
+            '<i class="fa-solid fa-id-card text-teal-600"></i> Visual RFID';
+          simBadge.innerText = "SPI BUS";
+          simContainer.innerHTML = `
+            <div class="relative w-full h-full min-h-[160px] bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-200 shadow-xs">
+              <div class="w-44 h-28 bg-gradient-to-br from-teal-600 to-teal-800 rounded-xl p-3 text-white shadow-md flex flex-col justify-between cursor-pointer hover:scale-105 transition-all" onclick="tapCard('0B 3C B5 02')">
+                <div class="flex justify-between items-center text-xs">
+                  <i class="fa-solid fa-wifi rotate-90 text-teal-200"></i>
+                  <span class="font-mono text-[10px] opacity-80">MIFARE 1K</span>
+                </div>
+                <div class="text-center font-mono text-xs tracking-widest font-bold">0B 3C B5 02</div>
+                <div class="text-[9px] text-right text-teal-200">Tap Kartu</div>
+              </div>
+            </div>`;
+          simButtons.innerHTML = `
+            <button onclick="tapCard('0B 3C B5 02')" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-rss"></i> Tap Kartu (0B 3C B5 02)
+            </button>
+            <button onclick="tapCard('9A 12 EF 44')" class="w-full py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-key"></i> Tap Keyfob (9A 12 EF 44)
+            </button>`;
+
+          fileNameLabel.innerText = "sketch_sub6.1_baca_uid.ino";
+          ideStatusText.innerText = "Ready | SPI Pins: SDA 10, RST 9";
+          codeDescTitle.innerText = "Program Membaca Nomor RFID";
+          codeDescText.innerHTML =
+            'Program menginisialisasi pustaka <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded">&lt;SPI.h&gt;</code> dan <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded">&lt;MFRC522.h&gt;</code> untuk membaca nomor UID unik.';
+          renderCode(codeMisi1);
+        } else if (misi === 2) {
+          badgeSub.innerText = "MISI 2";
+          headerTitle.innerText = "Identifikasi 2 Kartu RFID Berbeda";
+          heroTitle.innerText =
+            "Misi 2: Identifikasi Multi-Kartu Pemilik Akses";
+          heroDesc.innerText =
+            "Program membandingkan UID kartu yang di-scan dengan 2 daftar UID terdaftar (Kartu 1 & Kartu 2). Nama dan kelas yang berbeda akan ditampilkan sesuai kartu yang didekatkan.";
+          heroIcon.className =
+            "fa-solid fa-user-check text-[140px] text-teal-100";
+          skemaBadge.innerText = "SDA: Pin 10 | RST: Pin 9";
+          skemaImage.src = "gambar2.png";
+          modalImage.src = "gambar2.png";
+
+          simTitle.innerHTML =
+            '<i class="fa-solid fa-id-badge text-teal-600"></i> Simulator Multi-Kartu';
+          simBadge.innerText = "2 KARTU AKTIF";
+          simContainer.innerHTML = `
+            <div class="w-full space-y-2 text-left">
+              <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                <span class="font-bold text-teal-800">Kartu 1:</span> <span class="font-mono">0B 3C B5 02</span><br>
+                <span class="font-bold text-slate-700">........ (........)</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                <span class="font-bold text-teal-800">Kartu 2:</span> <span class="font-mono">9A 12 EF 44</span><br>
+                <span class="font-bold text-slate-700">........ (........)</span>
+              </div>
+            </div>`;
+          simButtons.innerHTML = `
+            <button onclick="tapCardMisi2('0B 3C B5 02', '........', '........')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-circle-check"></i> Scan Kartu 1 (Faris)
+            </button>
+            <button onclick="tapCardMisi2('9A 12 EF 44', '........', '........')" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-circle-check"></i> Scan Kartu 2 (Budi)
+            </button>
+            <button onclick="tapCardMisi2('EE FF 11 22', '', '')" class="w-full py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-circle-xmark"></i> Scan Kartu Tidak Dikenal
+            </button>`;
+
+          fileNameLabel.innerText = "sketch_sub6.2_multi_kartu.ino";
+          ideStatusText.innerText =
+            "Ready | Multi-UID Target: 2 Kartu Terdaftar";
+          codeDescTitle.innerText = "Program Multi-Card Identification";
+          codeDescText.innerHTML =
+            'Menggunakan percabangan <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded">if-else if</code> untuk memvalidasi lebih dari satu UID kartu.';
+          renderCode(codeMisi2);
+        } else if (misi === 3) {
+          badgeSub.innerText = "MISI 3";
+          headerTitle.innerText =
+            "Sistem Kunci Pintu Otomatis (Open Door Lock)";
+          heroTitle.innerText = "Misi 3: Smart Door Lock RFID";
+          heroDesc.innerText =
+            "Menggabungkan RFID MFRC522, LCD 16x2 I2C, dan Relay Solenoid (Pin 2). Kartu terdaftar mengaktifkan relay membuka kunci selama 5 detik.";
+          heroIcon.className =
+            "fa-solid fa-door-open text-[140px] text-teal-100";
+          skemaBadge.innerText = "Relay: Pin 2 | LCD: I2C (A4/A5)";
+          skemaImage.src = "gambar3.png";
+          modalImage.src = "gambar3.png";
+
+          simTitle.innerHTML =
+            '<i class="fa-solid fa-desktop text-teal-600"></i> Hardwares Visual';
+          simBadge.innerHTML =
+            '<span id="relayStatusBadge" class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">RELAY: OFF</span>';
+          simContainer.innerHTML = `
+            <div class="w-full space-y-3">
+              <div class="lcd-screen p-3 rounded-xl border-4 border-slate-800 text-left font-mono tracking-widest text-xs space-y-1 shadow-inner">
+                <div id="lcdLine1">RFID Door Lock</div>
+                <div id="lcdLine2">Scan Kartu RFID</div>
+              </div>
+              <div id="solenoidBox" class="p-2.5 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center gap-2 text-xs font-bold text-slate-600">
+                <i id="solenoidIcon" class="fa-solid fa-lock text-slate-500"></i>
+                <span id="solenoidText">KUNCI TERTUTUP</span>
+              </div>
+            </div>`;
+          simButtons.innerHTML = `
+            <button onclick="tapDoorCard(true)" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-key"></i> Tap Kartu Valid (Akses Diterima)
+            </button>
+            <button onclick="tapDoorCard(false)" class="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-ban"></i> Tap Kartu Asal (Akses Ditolak)
+            </button>`;
+
+          fileNameLabel.innerText = "sketch_sub6.3_door_lock.ino";
+          ideStatusText.innerText = "Ready | Relay Pin: 2 | LCD: I2C 0x27";
+          codeDescTitle.innerText = "Program RFID Open Door Lock";
+          codeDescText.innerHTML =
+            'Menggunakan variabel <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded">card1</code> untuk mengendalikan pin relay <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded">RELAY_PIN 2</code>.';
+          renderCode(codeMisi3);
+        }
+
+        clearSerialMonitor();
+      }
+
+      function openImageModal() {
+        document.getElementById("imageModal").classList.remove("hidden");
+      }
+
+      function closeImageModal() {
+        document.getElementById("imageModal").classList.add("hidden");
+      }
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function renderCode(code) {
+        const lines = code.split("\n");
+        let htmlResult =
+          '<div class="table w-full border-collapse font-mono text-xs sm:text-sm">';
+        lines.forEach((line, index) => {
+          let comment = "";
+          let codePart = line;
+          const commentIdx = line.indexOf("//");
+          if (commentIdx !== -1) {
+            codePart = line.substring(0, commentIdx);
+            comment = `<span class="text-slate-400 italic">${escapeHtml(line.substring(commentIdx))}</span>`;
+          }
+
+          codePart = escapeHtml(codePart);
+
+          codePart = codePart
+            .replace(
+              /\b(\d+|0x[0-9A-Fa-f]+)\b/g,
+              '<span class="text-emerald-600">$1</span>',
+            )
+            .replace(
+              /#(include|define)\b/g,
+              '<span class="text-purple-600 font-bold">#$1</span>',
+            )
+            .replace(
+              /\b(int|void|byte|bool|float)\b/g,
+              '<span class="text-[#05797d] font-bold">$1</span>',
+            );
+
+          htmlResult += `
+            <div class="table-row hover:bg-slate-50">
+              <div class="table-cell text-right select-none pr-3 text-slate-300 w-7 py-0.5 border-r border-slate-100">${index + 1}</div>
+              <div class="table-cell pl-3.5 whitespace-pre py-0.5">${codePart}${comment}</div>
+            </div>`;
+        });
+        document.getElementById("codeDisplay").innerHTML =
+          htmlResult + "</div>";
+      }
+
+      function uploadAndRun() {
+        isRunning = true;
+        const mon = document.getElementById("serialMonitorOutput");
+        mon.innerHTML = "";
+        if (currentMisi === 1) printLog("Scan kartu RFID untuk membaca UID");
+        else if (currentMisi === 2)
+          printLog("Scan kartu RFID untuk identifikasi");
+        else if (currentMisi === 3)
+          printLog("Scan kartu RFID untuk membuka kunci");
+      }
+
+      function printLog(msg) {
+        const mon = document.getElementById("serialMonitorOutput");
+        const div = document.createElement("div");
+        div.className = "text-slate-800 font-mono text-xs";
+        div.innerText = msg;
+        mon.appendChild(div);
+        mon.scrollTop = mon.scrollHeight;
+      }
+
+      function tapCard(uid) {
+        if (!isRunning) {
+          alert("Klik 'Upload & Run' terlebih dahulu!");
+          return;
+        }
+        if (currentMisi === 1) {
+          printLog("UID kartu: " + uid);
+          printLog("Tipe kartu: MIFARE 1KB");
+        }
+      }
+
+      function tapCardMisi2(uid, nama, kelas) {
+        if (!isRunning) {
+          alert("Klik 'Upload & Run' terlebih dahulu!");
+          return;
+        }
+        if (nama !== "") {
+          printLog("Nama: " + nama);
+          printLog("Kelas: " + kelas);
+        } else {
+          printLog("UID kartu tidak dikenal: " + uid);
+        }
+      }
+
+      function tapDoorCard(isValid) {
+        if (!isRunning) {
+          alert("Klik 'Upload & Run' terlebih dahulu!");
+          return;
+        }
+        if (lockTimer) clearTimeout(lockTimer);
+
+        const badge = document.getElementById("relayStatusBadge");
+        const solBox = document.getElementById("solenoidBox");
+        const solIcon = document.getElementById("solenoidIcon");
+        const solText = document.getElementById("solenoidText");
+
+        if (isValid) {
+          printLog("Akses Diterima");
+          document.getElementById("lcdLine1").innerText = "Akses Diterima";
+          document.getElementById("lcdLine2").innerText = "........";
+          badge.className =
+            "text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300";
+          badge.innerText = "RELAY: ON (HIGH)";
+          solBox.className =
+            "p-2.5 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center gap-2 text-xs font-bold text-emerald-800 transition-all";
+          solIcon.className =
+            "fa-solid fa-lock-open text-emerald-600 animate-bounce";
+          solText.innerText = "KUNCI TERBUKA";
+
+          lockTimer = setTimeout(() => {
+            document.getElementById("lcdLine1").innerText = "RFID Door Lock";
+            document.getElementById("lcdLine2").innerText = "Scan Kartu RFID";
+            badge.className =
+              "text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-300";
+            badge.innerText = "RELAY: OFF (LOW)";
+            solBox.className =
+              "p-2.5 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center gap-2 text-xs font-bold text-slate-600";
+            solIcon.className = "fa-solid fa-lock text-slate-500";
+            solText.innerText = "KUNCI TERTUTUP";
+            printLog("Scan kartu RFID untuk membuka kunci");
+          }, 5000);
+        } else {
+          printLog("Akses Ditolak");
+          document.getElementById("lcdLine1").innerText = "Akses Ditolak";
+          document.getElementById("lcdLine2").innerText = "Tdk Dikenal";
+
+          lockTimer = setTimeout(() => {
+            document.getElementById("lcdLine1").innerText = "RFID Door Lock";
+            document.getElementById("lcdLine2").innerText = "Scan Kartu RFID";
+            printLog("Scan kartu RFID untuk membuka kunci");
+          }, 2000);
+        }
+      }
+
+      function clearSerialMonitor() {
+        document.getElementById("serialMonitorOutput").innerHTML =
+          '<span class="text-slate-400 italic">[Cleared]</span>';
+      }
+
+      function copyCode() {
+        let textToCopy =
+          currentMisi === 1
+            ? codeMisi1
+            : currentMisi === 2
+              ? codeMisi2
+              : codeMisi3;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          document.getElementById("btnCopyText").innerText = "Tersalin!";
+          setTimeout(() => {
+            document.getElementById("btnCopyText").innerText = "Salin Kode";
+          }, 2000);
+        });
+      }
+
+      window.onload = function () {
+        renderCode(codeMisi1);
+      };
+    </script>
+  </body>
+</html>
