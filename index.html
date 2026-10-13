@@ -468,6 +468,7 @@ void loop() {
   mfrc522.PICC_HaltA();
 }`;
 
+      // Misi 2 diperbarui dengan format if-else if untuk 2 kartu
       const codeMisi2 = `#include <SPI.h>
 #include <MFRC522.h>
 
@@ -476,45 +477,67 @@ void loop() {
 
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Membuat instance MFRC522
 
+// Fungsi untuk membandingkan UID yang dibaca dengan UID yang sudah disimpan
 bool compareUID(byte *readUID, byte *storedUID, byte size) {
   for (byte i = 0; i < size; i++) {
-    if (readUID[i] != storedUID[i]) return false;
+    if (readUID[i] != storedUID[i]) {
+      return false;
+    }
   }
   return true;
 }
 
 void setup() {
-  Serial.begin(9600);
-  SPI.begin();
-  mfrc522.PCD_Init();
-  Serial.println("Scan kartu RFID untuk identifikasi");
+  Serial.begin(9600); // Memulai komunikasi Serial
+  SPI.begin();        // Memulai SPI
+  mfrc522.PCD_Init(); // Inisialisasi RFID reader
+  Serial.println("Scan kartu RFID untuk membaca UID");
 }
 
 void loop() {
-  if (!mfrc522.PICC_IsNewCardPresent()) return;
-  if (!mfrc522.PICC_ReadCardSerial()) return;
+  // Periksa apakah ada kartu yang tersedia
+  if (!mfrc522.PICC_IsNewCardPresent()) {
+    return;
+  }
 
+  // Memeriksa apakah kartu dapat dibaca
+  if (!mfrc522.PICC_ReadCardSerial()) {
+    return;
+  }
+
+  // Menyimpan UID dari kartu yang dibaca
   byte readUID[4];
-  for (byte i = 0; i < 4; i++) { readUID[i] = mfrc522.uid.uidByte[i]; }
+  for (byte i = 0; i < 4; i++) {
+    readUID[i] = mfrc522.uid.uidByte[i];
+  }
 
-  byte card1[4] = {0x0B, 0x3C, 0xB5, 0x02}; // Kartu 1
-  byte card2[4] = {0x9A, 0x12, 0xEF, 0x44}; // Kartu 2
+  // Daftar UID 2 Kartu Terdaftar
+  byte card1[4] = {0x0B, 0x3C, 0xB5, 0x02};  // Kartu Pertama
+  byte card2[4] = {0x9A, 0x12, 0xEF, 0x44};  // Kartu Kedua
 
+  // Memeriksa pencocokan UID menggunakan if-else if untuk 2 kartu
   if (compareUID(readUID, card1, mfrc522.uid.size)) {
-    Serial.println("Nama: ........");
-    Serial.println("Kelas: ........");
+    Serial.println("Nama: ........");  // Masukkan nama Anda
+    Serial.println("Kelas: ........"); // Masukkan Kelas Anda
   } 
   else if (compareUID(readUID, card2, mfrc522.uid.size)) {
-    Serial.println("Nama: ........");
-    Serial.println("Kelas: ........");
+    Serial.println("Nama: ........");  // Masukkan nama Anda
+    Serial.println("Kelas: ........"); // Masukkan Kelas Anda
   } 
   else {
-    Serial.println("UID kartu tidak dikenal");
+    Serial.print("UID kartu tidak dikenal: ");
+    for (byte i = 0; i < mfrc522.uid.size; i++) {
+      Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+      Serial.print(mfrc522.uid.uidByte[i], HEX);
+    }
+    Serial.println();
   }
+
+  // Menghentikan komunikasi dengan kartu
   mfrc522.PICC_HaltA();
 }`;
 
-      // Misi 3 dengan variabel card1 menggantikan storedUID
+      // Misi 3
       const codeMisi3 = `#include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include <SPI.h>
@@ -555,7 +578,7 @@ void loop() {
   byte readUID[4];
   for (byte i = 0; i < 4; i++) { readUID[i] = mfrc522.uid.uidByte[i]; }
   
-  byte card1[4] = {0x0B, 0x3C, 0xB5, 0x02}; // Menggunakan card1
+  byte card1[4] = {0x0B, 0x3C, 0xB5, 0x02};
 
   if (compareUID(readUID, card1, mfrc522.uid.size)) {
     lcd.clear();
@@ -661,7 +684,7 @@ void loop() {
           heroTitle.innerText =
             "Misi 2: Identifikasi Multi-Kartu Pemilik Akses";
           heroDesc.innerText =
-            "Program membandingkan UID kartu yang di-scan dengan 2 daftar UID terdaftar (Kartu 1 & Kartu 2). Nama dan kelas yang berbeda akan ditampilkan sesuai kartu yang didekatkan.";
+            "Program membandingkan UID kartu yang di-scan menggunakan percabangan if-else if untuk 2 kartu terdaftar.";
           heroIcon.className =
             "fa-solid fa-user-check text-[140px] text-teal-100";
           skemaBadge.innerText = "SDA: Pin 10 | RST: Pin 9";
@@ -675,19 +698,19 @@ void loop() {
             <div class="w-full space-y-2 text-left">
               <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
                 <span class="font-bold text-teal-800">Kartu 1:</span> <span class="font-mono">0B 3C B5 02</span><br>
-                <span class="font-bold text-slate-700">........ (........)</span>
+                <span class="font-bold text-slate-700">Nama: ........ | Kelas: ........</span>
               </div>
               <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
                 <span class="font-bold text-teal-800">Kartu 2:</span> <span class="font-mono">9A 12 EF 44</span><br>
-                <span class="font-bold text-slate-700">........ (........)</span>
+                <span class="font-bold text-slate-700">Nama: ........ | Kelas: ........</span>
               </div>
             </div>`;
           simButtons.innerHTML = `
             <button onclick="tapCardMisi2('0B 3C B5 02', '........', '........')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
-              <i class="fa-solid fa-circle-check"></i> Scan Kartu 1 (Faris)
+              <i class="fa-solid fa-circle-check"></i> Scan Kartu 1 (0B 3C B5 02)
             </button>
             <button onclick="tapCardMisi2('9A 12 EF 44', '........', '........')" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
-              <i class="fa-solid fa-circle-check"></i> Scan Kartu 2 (Budi)
+              <i class="fa-solid fa-circle-check"></i> Scan Kartu 2 (9A 12 EF 44)
             </button>
             <button onclick="tapCardMisi2('EE FF 11 22', '', '')" class="w-full py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
               <i class="fa-solid fa-circle-xmark"></i> Scan Kartu Tidak Dikenal
@@ -698,7 +721,7 @@ void loop() {
             "Ready | Multi-UID Target: 2 Kartu Terdaftar";
           codeDescTitle.innerText = "Program Multi-Card Identification";
           codeDescText.innerHTML =
-            'Menggunakan percabangan <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded">if-else if</code> untuk memvalidasi lebih dari satu UID kartu.';
+            'Menggunakan fungsi <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded">compareUID()</code> dengan struktur <code class="font-mono bg-teal-100 text-teal-800 px-1 rounded">if-else if</code>.';
           renderCode(codeMisi2);
         } else if (misi === 3) {
           badgeSub.innerText = "MISI 3";
@@ -837,11 +860,11 @@ void loop() {
           alert("Klik 'Upload & Run' terlebih dahulu!");
           return;
         }
-        if (nama !== "") {
+        if (uid === "EE FF 11 22") {
+          printLog("UID kartu tidak dikenal: " + uid);
+        } else {
           printLog("Nama: " + nama);
           printLog("Kelas: " + kelas);
-        } else {
-          printLog("UID kartu tidak dikenal: " + uid);
         }
       }
 
