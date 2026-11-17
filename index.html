@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Robot Line Follower - 3 Channel Tracker Sensor & L9110S Motor Driver
+    </title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      body {
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+      }
+      @keyframes spinWheelForward {
+        from {
+          transform: translateY(0);
+        }
+        to {
+          transform: translateY(-12px);
+        }
+      }
+      @keyframes spinWheelBackward {
+        from {
+          transform: translateY(-12px);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+      .wheel-forward {
+        background-image: repeating-linear-gradient(
+          0deg,
+          #1e293b 0px,
+          #1e293b 6px,
+          #475569 6px,
+          #475569 12px
+        );
+        animation: spinWheelForward 0.35s linear infinite;
+      }
+      .wheel-backward {
+        background-image: repeating-linear-gradient(
+          0deg,
+          #1e293b 0px,
+          #1e293b 6px,
+          #475569 6px,
+          #475569 12px
+        );
+        animation: spinWheelBackward 0.35s linear infinite;
+      }
+      .wheel-stop {
+        background-image: repeating-linear-gradient(
+          0deg,
+          #1e293b 0px,
+          #1e293b 6px,
+          #334155 6px,
+          #334155 12px
+        );
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased pb-10"
+  >
+    <!-- HEADER APP -->
+    <header
+      class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-xs"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-black text-sm tracking-wider shadow-sm"
+          >
+            ICT
+          </div>
+          <div>
+            <h1
+              class="text-xs sm:text-sm font-extrabold text-teal-900 tracking-wide uppercase"
+            >
+              smp Labschool uny
+            </h1>
+            <p class="text-xs text-slate-500 font-medium">
+              Robot Line Follower: Sensor Infrared (3-CH) & Motor Driver L9110S
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <!-- HERO BANNER -->
+      <section
+        class="bg-gradient-to-r from-teal-800 to-teal-700 text-white rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden"
+      >
+        <div
+          class="absolute -right-4 -bottom-6 opacity-15 pointer-events-none hidden sm:block select-none"
+        >
+          <i class="fa-solid fa-robot text-[140px] text-teal-100"></i>
+        </div>
+        <div class="relative z-10 space-y-1.5 max-w-3xl">
+          <div
+            class="inline-flex items-center gap-2 bg-white/15 border border-white/20 text-teal-50 px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md"
+          >
+            <i class="fa-solid fa-puzzle-piece text-teal-200 text-xs"></i>
+            <span>Praktik Pemrograman Blok mBlock & Robotika</span>
+          </div>
+          <h2
+            class="text-lg sm:text-xl font-extrabold text-white leading-tight display-font"
+          >
+            Robot Pengikut Garis (Line Follower) dengan 3 Sensor IR & Driver
+            L9110S
+          </h2>
+          <p
+            class="text-xs sm:text-sm text-teal-50/90 leading-relaxed font-normal"
+          >
+            Mempelajari pembacaan 3 sensor garis digital (<code
+              class="font-mono text-teal-200 font-bold"
+              >L, C, R</code
+            >) pada pin digital Arduino, logika percabangan arah gerak, serta
+            pengendalian 2 motor DC melalui modul driver
+            <code class="font-mono text-teal-200 font-bold"
+              >L9110S (HW-354)</code
+            >
+            menggunakan mBlock 5.
+          </p>
+        </div>
+      </section>
+
+      <!-- SKEMA RANGKAIAN & SIMULATOR HARDWARE -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- GAMBAR RANGKAIAN (menggunakan rangkaian1.png) -->
+        <div
+          class="md:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between"
+        >
+          <div
+            class="w-full flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-diagram-project text-teal-600"></i> Skema
+              Rangkaian Line Follower
+            </h2>
+            <span class="text-xs text-slate-500 font-medium hidden sm:inline"
+              >Klik gambar untuk memperbesar</span
+            >
+          </div>
+
+          <div
+            class="w-full bg-slate-50 p-3 sm:p-5 rounded-xl border border-slate-200 flex items-center justify-center min-h-[260px] cursor-zoom-in"
+            onclick="openImageModal('rangkaian1.png')"
+          >
+            <img
+              src="rangkaian1.png"
+              alt="Skema Rangkaian Robot Line Follower Arduino Uno"
+              class="max-h-[350px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs hover:scale-[1.01] transition-transform duration-200"
+            />
+          </div>
+
+          <!-- RINGKASAN PIN KONEKSI -->
+          <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+              <div
+                class="font-bold text-slate-700 mb-1 flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-eye text-teal-600"></i> Tracker Sensor
+                (3-CH)
+              </div>
+              <ul class="text-slate-600 space-y-0.5 font-mono text-[11px]">
+                <li>• Sensor L (Kiri) → Pin 10[cite: 4]</li>
+                <li>• Sensor C (Tengah) → Pin 9[cite: 4]</li>
+                <li>• Sensor R (Kanan) → Pin 8[cite: 4]</li>
+                <li>• VCC & GND → 5V & GND[cite: 4]</li>
+              </ul>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+              <div
+                class="font-bold text-slate-700 mb-1 flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-gears text-teal-600"></i> Motor Driver
+                L9110S
+              </div>
+              <ul class="text-slate-600 space-y-0.5 font-mono text-[11px]">
+                <li>• IN1 / IN2 (Motor Kiri) → Pin 4 & 5[cite: 4]</li>
+                <li>• IN3 / IN4 (Motor Kanan) → Pin 6 & 7[cite: 4]</li>
+                <li>• VCC & GND → VIN / 5V & GND[cite: 4]</li>
+                <li>• Sumber Daya → 2x Baterai 18650[cite: 4]</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIMULATOR VISUAL HARDWARE INTERAKTIF -->
+        <div
+          class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between items-center text-center overflow-hidden"
+        >
+          <div
+            class="w-full border-b border-slate-100 pb-2.5 flex items-center justify-between mb-2"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-sliders text-teal-600"></i> Simulator Robot
+            </h2>
+            <span
+              class="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded"
+              >INTERAKTIF</span
+            >
+          </div>
+
+          <!-- KONTROL SENSOR GARIS (L, C, R) -->
+          <div
+            class="relative w-full h-full min-h-[240px] bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-between border border-slate-200 shadow-xs my-auto space-y-3"
+          >
+            <div class="w-full">
+              <p class="text-xs font-bold text-slate-700 mb-2">
+                Klik Sensor untuk Deteksi Garis Hitam:
+              </p>
+
+              <!-- 3 TOMBOL SENSOR IR -->
+              <div class="grid grid-cols-3 gap-2 w-full">
+                <button
+                  id="btnSensorL"
+                  onclick="toggleSensor('L')"
+                  class="py-2.5 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold text-xs flex flex-col items-center gap-1 transition cursor-pointer shadow-xs"
+                >
+                  <span
+                    id="ledSensorL"
+                    class="w-3.5 h-3.5 rounded-full bg-slate-300 border border-slate-400"
+                  ></span>
+                  <span>L (Pin 10)</span>
+                  <span
+                    id="stateTextL"
+                    class="text-[10px] font-mono text-slate-400"
+                    >0 (Putih)</span
+                  >
+                </button>
+
+                <button
+                  id="btnSensorC"
+                  onclick="toggleSensor('C')"
+                  class="py-2.5 px-2 rounded-xl border-2 border-slate-900 bg-slate-900 text-white font-bold text-xs flex flex-col items-center gap-1 transition cursor-pointer shadow-xs"
+                >
+                  <span
+                    id="ledSensorC"
+                    class="w-3.5 h-3.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]"
+                  ></span>
+                  <span>C (Pin 9)</span>
+                  <span
+                    id="stateTextC"
+                    class="text-[10px] font-mono text-amber-300"
+                    >1 (Hitam)</span
+                  >
+                </button>
+
+                <button
+                  id="btnSensorR"
+                  onclick="toggleSensor('R')"
+                  class="py-2.5 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold text-xs flex flex-col items-center gap-1 transition cursor-pointer shadow-xs"
+                >
+                  <span
+                    id="ledSensorR"
+                    class="w-3.5 h-3.5 rounded-full bg-slate-300 border border-slate-400"
+                  ></span>
+                  <span>R (Pin 8)</span>
+                  <span
+                    id="stateTextR"
+                    class="text-[10px] font-mono text-slate-400"
+                    >0 (Putih)</span
+                  >
+                </button>
+              </div>
+            </div>
+
+            <!-- VISUALISASI RODA MOTOR KIRI & KANAN -->
+            <div
+              class="w-full bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-around"
+            >
+              <!-- Motor Kiri -->
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-[10px] font-bold text-slate-500"
+                  >Motor Kiri</span
+                >
+                <div class="flex items-center gap-1.5">
+                  <div
+                    id="wheelLeft"
+                    class="w-5 h-12 rounded-md border-2 border-slate-800 wheel-forward"
+                  ></div>
+                  <div
+                    class="w-7 h-9 bg-amber-400 border border-amber-500 rounded-sm flex items-center justify-center text-[9px] font-black text-amber-950"
+                  >
+                    DC
+                  </div>
+                </div>
+                <span
+                  id="motorLeftStatus"
+                  class="text-[10px] font-mono font-bold text-emerald-600"
+                  >MAJU</span
+                >
+              </div>
+
+              <!-- Arah Robot -->
+              <div class="flex flex-col items-center justify-center px-2">
+                <div
+                  id="directionIcon"
+                  class="w-10 h-10 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 text-lg"
+                >
+                  <i class="fa-solid fa-arrow-up"></i>
+                </div>
+                <span
+                  id="robotActionText"
+                  class="text-xs font-extrabold text-teal-800 mt-1"
+                  >MAJU LURUS</span
+                >
+              </div>
+
+              <!-- Motor Kanan -->
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-[10px] font-bold text-slate-500"
+                  >Motor Kanan</span
+                >
+                <div class="flex items-center gap-1.5">
+                  <div
+                    class="w-7 h-9 bg-amber-400 border border-amber-500 rounded-sm flex items-center justify-center text-[9px] font-black text-amber-950"
+                  >
+                    DC
+                  </div>
+                  <div
+                    id="wheelRight"
+                    class="w-5 h-12 rounded-md border-2 border-slate-800 wheel-forward"
+                  ></div>
+                </div>
+                <span
+                  id="motorRightStatus"
+                  class="text-[10px] font-mono font-bold text-emerald-600"
+                  >MAJU</span
+                >
+              </div>
+            </div>
+
+            <!-- STATUS PIN DIGITAL OUTPUT -->
+            <div
+              class="w-full text-[11px] font-mono text-slate-600 bg-white p-2 rounded-lg border border-slate-200"
+            >
+              Pin Motor:
+              <span id="pinOutputText" class="font-bold text-teal-700"
+                >IN1:1 IN2:0 | IN3:1 IN4:0</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BAGIAN KODE PROGRAM MBLOCKS (menggunakan blok1.png) -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3
+            class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-puzzle-piece text-teal-600"></i> Kode Program
+            mBlock (Blok Logika)
+          </h3>
+          <span
+            class="text-xs font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-full"
+          >
+            mBlock 5 Visual Editor
+          </span>
+        </div>
+
+        <div
+          class="rounded-xl overflow-hidden shadow-md border border-slate-300 bg-white font-sans p-4 sm:p-6 flex flex-col items-center justify-center"
+        >
+          <div
+            class="w-full flex items-center justify-between pb-3 mb-4 border-b border-slate-100 text-xs text-slate-500"
+          >
+            <span class="font-bold font-mono text-slate-700"
+              ><i class="fa-solid fa-image text-teal-600 mr-1.5"></i>
+              blok1.png</span
+            >
+            <span
+              class="font-semibold text-teal-700 bg-teal-50 px-2 py-1 rounded"
+              ><i class="fa-solid fa-magnifying-glass-plus mr-1"></i> Klik
+              gambar untuk memperbesar</span
+            >
+          </div>
+
+          <div
+            class="bg-slate-50 p-4 rounded-xl border border-slate-200 w-full flex justify-center cursor-zoom-in transition-all duration-200 hover:border-teal-400 hover:shadow-md"
+            onclick="openImageModal('blok1.png')"
+          >
+            <img
+              src="blok1.png"
+              alt="Blok Program mBlock Line Follower"
+              class="w-full max-w-4xl max-h-[750px] object-contain rounded-lg shadow-xs"
+            />
+          </div>
+        </div>
+
+        <!-- TABEL LOGIKA KEBENARAN -->
+        <div
+          class="mt-4 overflow-x-auto bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm"
+        >
+          <h3
+            class="text-sm sm:text-base font-extrabold text-slate-900 mb-3 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-table text-teal-600"></i> Tabel Kebenaran
+            Logika Line Follower
+          </h3>
+          <table
+            class="w-full text-xs text-left border-collapse border border-slate-200 rounded-lg overflow-hidden"
+          >
+            <thead class="bg-teal-800 text-white">
+              <tr>
+                <th class="p-2.5 border border-teal-700">
+                  Sensor L (Pin 10)[cite: 4]
+                </th>
+                <th class="p-2.5 border border-teal-700">
+                  Sensor C (Pin 9)[cite: 4]
+                </th>
+                <th class="p-2.5 border border-teal-700">
+                  Sensor R (Pin 8)[cite: 4]
+                </th>
+                <th class="p-2.5 border border-teal-700">Kondisi Lintasan</th>
+                <th class="p-2.5 border border-teal-700">
+                  Motor Kiri (Pin 4,5)[cite: 4]
+                </th>
+                <th class="p-2.5 border border-teal-700">
+                  Motor Kanan (Pin 6,7)[cite: 4]
+                </th>
+                <th class="p-2.5 border border-teal-700">Gerakan Robot</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 font-mono">
+              <tr class="bg-white">
+                <td class="p-2 border border-slate-200 text-center">0</td>
+                <td
+                  class="p-2 border border-slate-200 text-center font-bold text-teal-700"
+                >
+                  1
+                </td>
+                <td class="p-2 border border-slate-200 text-center">0</td>
+                <td class="p-2 border border-slate-200 font-sans">
+                  Garis tepat di tengah
+                </td>
+                <td class="p-2 border border-slate-200 text-emerald-700">
+                  Maju (1, 0)
+                </td>
+                <td class="p-2 border border-slate-200 text-emerald-700">
+                  Maju (1, 0)
+                </td>
+                <td
+                  class="p-2 border border-slate-200 font-sans font-bold text-teal-800"
+                >
+                  Maju Lurus
+                </td>
+              </tr>
+              <tr class="bg-slate-50">
+                <td
+                  class="p-2 border border-slate-200 text-center font-bold text-teal-700"
+                >
+                  1
+                </td>
+                <td class="p-2 border border-slate-200 text-center">0 / 1</td>
+                <td class="p-2 border border-slate-200 text-center">0</td>
+                <td class="p-2 border border-slate-200 font-sans">
+                  Garis berbelok ke kiri (L Hidup)
+                </td>
+                <td
+                  class="p-2 border border-slate-200 text-amber-600 font-bold"
+                >
+                  Mundur (0, 1)
+                </td>
+                <td
+                  class="p-2 border border-slate-200 text-emerald-700 font-bold"
+                >
+                  Maju (1, 0)
+                </td>
+                <td
+                  class="p-2 border border-slate-200 font-sans font-bold text-amber-700"
+                >
+                  Belok Kiri Tajam
+                </td>
+              </tr>
+              <tr class="bg-white">
+                <td class="p-2 border border-slate-200 text-center">0</td>
+                <td class="p-2 border border-slate-200 text-center">0 / 1</td>
+                <td
+                  class="p-2 border border-slate-200 text-center font-bold text-teal-700"
+                >
+                  1
+                </td>
+                <td class="p-2 border border-slate-200 font-sans">
+                  Garis berbelok ke kanan (R Hidup)
+                </td>
+                <td
+                  class="p-2 border border-slate-200 text-emerald-700 font-bold"
+                >
+                  Maju (1, 0)
+                </td>
+                <td
+                  class="p-2 border border-slate-200 text-amber-600 font-bold"
+                >
+                  Mundur (0, 1)
+                </td>
+                <td
+                  class="p-2 border border-slate-200 font-sans font-bold text-amber-700"
+                >
+                  Belok Kanan Tajam
+                </td>
+              </tr>
+              <tr class="bg-slate-50">
+                <td class="p-2 border border-slate-200 text-center font-bold">
+                  1
+                </td>
+                <td class="p-2 border border-slate-200 text-center font-bold">
+                  1
+                </td>
+                <td class="p-2 border border-slate-200 text-center font-bold">
+                  1
+                </td>
+                <td class="p-2 border border-slate-200 font-sans">
+                  Garis melintang / Finish
+                </td>
+                <td class="p-2 border border-slate-200 text-rose-600">
+                  Berhenti (0, 0)
+                </td>
+                <td class="p-2 border border-slate-200 text-rose-600">
+                  Berhenti (0, 0)
+                </td>
+                <td
+                  class="p-2 border border-slate-200 font-sans font-bold text-rose-700"
+                >
+                  Berhenti
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- SERIAL MONITOR SECTION -->
+        <div
+          class="rounded-xl overflow-hidden shadow-sm border border-slate-300 bg-white font-sans mt-4"
+        >
+          <div
+            class="bg-slate-200/90 border-b border-slate-300 px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-slate-800 select-none"
+          >
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-terminal text-teal-700 text-xs"></i>
+              <span class="font-bold text-xs uppercase tracking-wide"
+                >Serial Monitor (Simulasi Pembacaan Sensor & Motor)</span
+              >
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button
+                id="btnUpload"
+                onclick="uploadAndRun()"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <i class="fa-solid fa-play text-[10px]"></i>
+                <span>Jalankan Simulasi</span>
+              </button>
+
+              <button
+                id="btnStop"
+                onclick="stopProgram()"
+                class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <i class="fa-solid fa-stop text-[10px]"></i>
+                <span>Stop</span>
+              </button>
+
+              <button
+                onclick="clearSerialMonitor()"
+                class="bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold px-2 py-1 rounded border border-slate-300 transition cursor-pointer"
+              >
+                <i class="fa-solid fa-eraser text-slate-500 mr-1"></i>Clear
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="p-3 bg-white min-h-[150px] max-h-[200px] overflow-y-auto font-mono text-xs text-slate-800 space-y-1.5 border-b border-slate-200"
+            id="serialMonitorOutput"
+          >
+            <div class="text-slate-400 italic">
+              [Serial Monitor Siap. Klik "Jalankan Simulasi" lalu klik tombol
+              sensor L / C / R di atas]
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODAL ZOOM GAMBAR -->
+      <div
+        id="imageModal"
+        class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs"
+        onclick="closeImageModal()"
+      >
+        <div
+          class="relative max-w-6xl max-h-[92vh] bg-white p-2 sm:p-3 rounded-2xl shadow-2xl"
+          onclick="event.stopPropagation()"
+        >
+          <button
+            onclick="closeImageModal()"
+            class="absolute -top-3 -right-3 bg-rose-600 text-white w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-md cursor-pointer hover:bg-rose-700 transition"
+          >
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+          <img
+            id="modalImg"
+            src=""
+            alt="Zoomed Content"
+            class="max-h-[85vh] w-auto max-w-full object-contain rounded-xl"
+          />
+        </div>
+      </div>
+    </main>
+
+    <footer
+      class="max-w-6xl mx-auto w-full px-4 pt-4 text-center text-xs text-slate-400 font-medium"
+    >
+      <p>© smp Labschool uny | ICT Learning</p>
+    </footer>
+
+    <!-- SCRIPT LOGIKA SIMULATOR LINE FOLLOWER & MODAL -->
+    <script>
+      let isProgramRunning = false;
+      const sensors = { L: 0, C: 1, R: 0 };
+
+      function toggleSensor(key) {
+        sensors[key] = sensors[key] === 1 ? 0 : 1;
+        updateLineFollowerSimulator();
+      }
+
+      function updateSensorButtonUI(key, val) {
+        const btn = document.getElementById("btnSensor" + key);
+        const led = document.getElementById("ledSensor" + key);
+        const txt = document.getElementById("stateText" + key);
+
+        if (val === 1) {
+          btn.className =
+            "py-2.5 px-2 rounded-xl border-2 border-slate-900 bg-slate-900 text-white font-bold text-xs flex flex-col items-center gap-1 transition cursor-pointer shadow-xs";
+          led.className =
+            "w-3.5 h-3.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]";
+          txt.className = "text-[10px] font-mono text-amber-300";
+          txt.innerText = "1 (Hitam)";
+        } else {
+          btn.className =
+            "py-2.5 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold text-xs flex flex-col items-center gap-1 transition cursor-pointer shadow-xs";
+          led.className =
+            "w-3.5 h-3.5 rounded-full bg-slate-300 border border-slate-400";
+          txt.className = "text-[10px] font-mono text-slate-400";
+          txt.innerText = "0 (Putih)";
+        }
+      }
+
+      function updateLineFollowerSimulator() {
+        const { L, C, R } = sensors;
+        updateSensorButtonUI("L", L);
+        updateSensorButtonUI("C", C);
+        updateSensorButtonUI("R", R);
+
+        let leftMove = "STOP";
+        let rightMove = "STOP";
+        let actionLabel = "BERHENTI";
+        let iconHtml = '<i class="fa-solid fa-stop text-rose-600"></i>';
+        let pinText = "IN1:0 IN2:0 | IN3:0 IN4:0";
+
+        if (L === 0 && C === 1 && R === 0) {
+          leftMove = "FORWARD";
+          rightMove = "FORWARD";
+          actionLabel = "MAJU LURUS";
+          iconHtml = '<i class="fa-solid fa-arrow-up text-emerald-600"></i>';
+          pinText = "IN1:1 IN2:0 | IN3:1 IN4:0";
+        } else if (L === 1 && R === 0) {
+          // L Hidup: Roda Kiri Mundur, Roda Kanan Maju
+          leftMove = "BACKWARD";
+          rightMove = "FORWARD";
+          actionLabel = "BELOK KIRI (L Hidup)";
+          iconHtml =
+            '<i class="fa-solid fa-arrow-turn-up -scale-x-100 text-amber-600"></i>';
+          pinText = "IN1:0 IN2:1 | IN3:1 IN4:0";
+        } else if (L === 0 && R === 1) {
+          // R Hidup: Roda Kanan Mundur, Roda Kiri Maju
+          leftMove = "FORWARD";
+          rightMove = "BACKWARD";
+          actionLabel = "BELOK KANAN (R Hidup)";
+          iconHtml = '<i class="fa-solid fa-arrow-turn-up text-amber-600"></i>';
+          pinText = "IN1:1 IN2:0 | IN3:0 IN4:1";
+        } else {
+          leftMove = "STOP";
+          rightMove = "STOP";
+          actionLabel =
+            L === 1 && C === 1 && R === 1 ? "FINISH / STOP" : "KELUAR GARIS";
+          iconHtml = '<i class="fa-solid fa-hand text-rose-600"></i>';
+          pinText = "IN1:0 IN2:0 | IN3:0 IN4:0";
+        }
+
+        const wheelLeft = document.getElementById("wheelLeft");
+        const wheelRight = document.getElementById("wheelRight");
+        const motorLeftStatus = document.getElementById("motorLeftStatus");
+        const motorRightStatus = document.getElementById("motorRightStatus");
+
+        // Styling Motor Kiri
+        if (leftMove === "FORWARD") {
+          wheelLeft.className =
+            "w-5 h-12 rounded-md border-2 border-slate-800 wheel-forward";
+          motorLeftStatus.innerText = "MAJU";
+          motorLeftStatus.className =
+            "text-[10px] font-mono font-bold text-emerald-600";
+        } else if (leftMove === "BACKWARD") {
+          wheelLeft.className =
+            "w-5 h-12 rounded-md border-2 border-slate-800 wheel-backward";
+          motorLeftStatus.innerText = "MUNDUR";
+          motorLeftStatus.className =
+            "text-[10px] font-mono font-bold text-amber-600";
+        } else {
+          wheelLeft.className =
+            "w-5 h-12 rounded-md border-2 border-slate-800 wheel-stop";
+          motorLeftStatus.innerText = "STOP";
+          motorLeftStatus.className =
+            "text-[10px] font-mono font-bold text-rose-600";
+        }
+
+        // Styling Motor Kanan
+        if (rightMove === "FORWARD") {
+          wheelRight.className =
+            "w-5 h-12 rounded-md border-2 border-slate-800 wheel-forward";
+          motorRightStatus.innerText = "MAJU";
+          motorRightStatus.className =
+            "text-[10px] font-mono font-bold text-emerald-600";
+        } else if (rightMove === "BACKWARD") {
+          wheelRight.className =
+            "w-5 h-12 rounded-md border-2 border-slate-800 wheel-backward";
+          motorRightStatus.innerText = "MUNDUR";
+          motorRightStatus.className =
+            "text-[10px] font-mono font-bold text-amber-600";
+        } else {
+          wheelRight.className =
+            "w-5 h-12 rounded-md border-2 border-slate-800 wheel-stop";
+          motorRightStatus.innerText = "STOP";
+          motorRightStatus.className =
+            "text-[10px] font-mono font-bold text-rose-600";
+        }
+
+        document.getElementById("directionIcon").innerHTML = iconHtml;
+        document.getElementById("robotActionText").innerText = actionLabel;
+        document.getElementById("pinOutputText").innerText = pinText;
+
+        if (isProgramRunning) {
+          printLog(
+            `L=${L} C=${C} R=${R}  -->  Aksi: ${actionLabel} (${pinText})`,
+          );
+        }
+      }
+
+      function printLog(text) {
+        const monitor = document.getElementById("serialMonitorOutput");
+        const line = document.createElement("div");
+        line.className = "text-slate-800 font-mono text-xs";
+        line.innerText = text;
+        monitor.appendChild(line);
+        monitor.scrollTop = monitor.scrollHeight;
+      }
+
+      function uploadAndRun() {
+        isProgramRunning = true;
+        document.getElementById("serialMonitorOutput").innerHTML = "";
+        printLog("[Simulasi mBlock Line Follower Berjalan...]");
+        updateLineFollowerSimulator();
+      }
+
+      function stopProgram() {
+        isProgramRunning = false;
+        printLog("[Simulasi Dihentikan]");
+      }
+
+      function clearSerialMonitor() {
+        document.getElementById("serialMonitorOutput").innerHTML = "";
+      }
+
+      function openImageModal(src) {
+        document.getElementById("modalImg").src = src;
+        document.getElementById("imageModal").classList.remove("hidden");
+      }
+
+      function closeImageModal() {
+        document.getElementById("imageModal").classList.add("hidden");
+      }
+
+      window.onload = function () {
+        updateLineFollowerSimulator();
+      };
+    </script>
+  </body>
+</html>
